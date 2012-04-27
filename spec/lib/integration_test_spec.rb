@@ -115,5 +115,8 @@ describe "Integration test against a GeoServer instance", :integration => true d
         ds.delete
       end
     end
+    context "CoverageStores" do
+      pending "Finish CoverageStore spec"
+    end
   end
 end

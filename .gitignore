@@ -5,8 +5,8 @@ rdoc
 doc
 .yardoc
 .bundle
-Gemfile.lock
 .rvmrc
+Gemfile.lock
 .DS_Store
 .swp
 .swo
