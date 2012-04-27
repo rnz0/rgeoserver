@@ -1,0 +1,72 @@
+== rgeoserver
+
+RGeoServer is a Ruby client for the GeoServer RESTful administrative interface. 
+
+It provides primitive Ruby model abstraction.
+
+== Documentation
+The GeoServer REST Configuration API Reference can be found here:
+
+http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html
+
+ 
+== Installation 
+
+  $ gem install rgeoserver
+
+
+== Example: 
+
+  > catalog = RGeoServer::Catalog.new :user=>"admin", :url=>"http://10.0.0.2/geoserver/rest", :password=>"osgeo!"
+  => Catalog: http://10.0.0.2/geoserver/rest
+  > w = catalog.get_workspace('topp') 
+  => RGeoServer::Workspace: topp
+  > ds = w.data_stores.first
+  => RGeoServer::DataStore: states_shapefile
+  > ds.profile
+  => {"name"=>"states_shapefile", "enabled"=>"true", "connectionParameters"=>{"url"=>"file:data/shapefiles/states.shp", "namespace"=>"http://www.openplans.org/topp"}, "featureTypes"=>["states"]} 
+  > ft = ds.featuretypes.first
+  => RGeoServer::FeatureType: states 
+  > ft.profile
+  => {:name=>"states", :workspace=>"topp", :nativeName=>"states"}  
+
+== Testing:
+  > rake 
+
+  > rake console
+
+== Related Resources
+* {OSGeo The Open Source Geospatial Foundation}[http://www.osgeo.org]
+* {GeoServer Project page}[http://docs.geoserver.org/stable/en/user/index.html]
+* {GeoTools}[http://geotools.org/]
+
+== Release History
+
+- <b>v0.1.0</b> - Initial alpha release
+
+== TODO
+- Complete stores and coverages functionality, handle Layers, styles and data upload.
+- Complete test coverage with embedded Jetty.
+- Migrate base HTTP client to {Weary}[https://github.com/mwunsch/weary]?
+
+== Contributing with Patches and Pull requests checklist
+* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
+* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
+* Fork the project
+* Start a feature/bugfix branch
+* Commit and push until you are happy with your contribution
+* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
+* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+
+
+== Acknowledgements
+Inspired on the Rubydora and RSolr gems. Followed somewhat closely to {gsconfig.py}[https://github.com/dwins/gsconfig.py] 
+
+== Contributors
+
+
+== License 
+
+Copyright (c) 2011 Renzo Sanchez-Silva <renzo@stanford.edu>.
+
+Licensed under the [MIT License](http://www.opensource.org/licenses/MIT).
