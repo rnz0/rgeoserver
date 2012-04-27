@@ -38,7 +38,7 @@ http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html
 == Related Resources
 * {OSGeo The Open Source Geospatial Foundation}[http://www.osgeo.org]
 * {GeoServer Project page}[http://docs.geoserver.org/stable/en/user/index.html]
-* {GeoServer Catalog design}[http://geoserver.org/download/attachments/819267/org.geoserver.catalog.png]
+* {<img src="http://geoserver.org/download/attachments/819267/org.geoserver.catalog.png" width="300"/>GeoServer Catalog design}[http://geoserver.org/download/attachments/819267/org.geoserver.catalog.png]
 * {GeoTools}[http://geotools.org/]
 * Implementation in other languages: 
   * Python: {gsconfig.py}[https://github.com/dwins/gsconfig.py]
