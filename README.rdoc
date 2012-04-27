@@ -38,7 +38,7 @@ http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html
 == Related Resources
 * {OSGeo The Open Source Geospatial Foundation}[http://www.osgeo.org]
 * {GeoServer Project page}[http://docs.geoserver.org/stable/en/user/index.html]
-* {GeoServer Catalog design][http://geoserver.org/download/attachments/819267/org.geoserver.catalog.png]
+* {GeoServer Catalog design}[http://geoserver.org/download/attachments/819267/org.geoserver.catalog.png]
 * {GeoTools}[http://geotools.org/]
 * Implementation in other languages: 
   * Python: {gsconfig.py}[https://github.com/dwins/gsconfig.py]
@@ -49,7 +49,7 @@ http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html
 
 == TODO
 - Complete stores and coverages functionality, handle Layers, styles and data upload.
-- Complete test coverage with embedded Jetty.
+- Complete documentaion and test coverage with embedded Jetty.
 - Migrate base HTTP client to {Weary}[https://github.com/mwunsch/weary]?
 
 == Contributing with Patches and Pull requests checklist
