@@ -30,9 +30,9 @@ http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html
   > ft.profile
   => {:name=>"states", :workspace=>"topp", :nativeName=>"states"}  
 
-== Testing:
-  For now tests run integrated with a local running instance of GeoServer. 
-  Download version 2.1.3 binary from {here}[http://sourceforge.net/project/downloading.php?groupname=geoserver&filename=geoserver-2.1.3-bin.zip&use_mirror=softlayer], unzip, enter the directory and run:
+== Testing
+For now tests run integrated with a local running instance of GeoServer. 
+Download version 2.1.3 binary from {here}[http://sourceforge.net/project/downloading.php?groupname=geoserver&filename=geoserver-2.1.3-bin.zip&use_mirror=softlayer], unzip, enter the directory and run:
   > java -jar start.jar
 
   Go to rgeoserver source directory and execute the tests:
