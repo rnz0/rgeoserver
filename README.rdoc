@@ -1,4 +1,4 @@
-== rgeoserver
+== RGeoServer
 
 RGeoServer is a Ruby client for the GeoServer RESTful administrative interface. 
 
