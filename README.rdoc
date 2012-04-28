@@ -31,8 +31,7 @@ http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html
   => {:name=>"states", :workspace=>"topp", :nativeName=>"states"}  
 
 == Testing
-We use {jettywrapper}[https://github.com/projecthydra/jettywrapper] to wrap a test instance of GeoServer. In theory, you should be able to point to any other local installation. Suppose that you download the binary stable version 2.1.3 binary from {here}[http://sourceforge.net/project/downloading.php?groupname=geoserver&filename=geoserver-2.1.3-bin.zip&use_mirror=softlayer], unzip under say, /tmp/geoserver-2.1.3, relative to the source directory of this gem.
-The integration tests are executed as follows:
+We use {jettywrapper}[https://github.com/projecthydra/jettywrapper] to wrap a test instance of GeoServer. In theory, you should be able to point to any other local installation. Suppose that you download the binary stable version 2.1.3 binary from {here}[http://sourceforge.net/project/downloading.php?groupname=geoserver&filename=geoserver-2.1.3-bin.zip&use_mirror=softlayer], then unzip it under say, /tmp/geoserver-2.1.3. The integration tests are executed as follows:
   > rake integration['/tmp/geoserver-2.1.3','8080','-DGEOSERVER_DATA_DIR=data_dir']
 
 To generate the documentation run:
