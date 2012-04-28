@@ -41,8 +41,8 @@ module RGeoServer
         return builder.doc.to_xml 
       end
 
-      # @params [RGeoServer::Catalog] catalog
-      # @params [Hash] options
+      # @param [RGeoServer::Catalog] catalog
+      # @param [Hash] options
       def initialize catalog, options
         super({})
         _run_initialize_callbacks do

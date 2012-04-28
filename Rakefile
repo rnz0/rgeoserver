@@ -32,19 +32,16 @@ task :console do
   sh "irb -rubygems -I lib -r rgeoserver.rb"
 end
 
-desc "Execute Continuous Integration build"
-task :ci do
-  unless ENV['environment'] == 'test'
-    exec("rake ci environment=test") 
-  end
+desc "Execute integration tests"
+task :integration, :jetty_home, :jetty_port, :java_opts do |t, args| 
 
   require 'jettywrapper'
   jetty_params = {
-    :jetty_home => File.expand_path(File.dirname(__FILE__) + '/jetty'),
-    :quiet => false,
-    :jetty_port => 8983,
-    :geoserver_home => File.expand_path(File.dirname(__FILE__) + '/jetty/solr'),
-    :startup_wait => 30
+    :jetty_home => args.jetty_home,
+    :java_opts => [args.java_opts], 
+    :jetty_port => args.jetty_port, 
+    :quiet => true,
+    :startup_wait => 20
   }
 
   error = Jettywrapper.wrap(jetty_params) do

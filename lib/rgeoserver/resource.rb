@@ -47,7 +47,7 @@ module RGeoServer
       end
  
       # Modify or save the resource
-      # @params options [Hash] 
+      # @param options [Hash] 
       # @return [RGeoServer::ResourceInfo] 
       def save options = {}
         @previously_changed = changes
@@ -65,7 +65,7 @@ module RGeoServer
       end
      
       # Purge resource from Geoserver Catalog
-      # @params options [Hash] 
+      # @param options [Hash] 
       # @return [RGeoServer::ResourceInfo] `self`
       def delete options = {} 
         run_callbacks :destroy do

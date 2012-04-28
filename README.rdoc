@@ -31,13 +31,14 @@ http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html
   => {:name=>"states", :workspace=>"topp", :nativeName=>"states"}  
 
 == Testing
-For now tests run integrated with a local running instance of GeoServer. 
-Download version 2.1.3 binary from {here}[http://sourceforge.net/project/downloading.php?groupname=geoserver&filename=geoserver-2.1.3-bin.zip&use_mirror=softlayer], unzip, enter the directory and run:
-  > java -jar start.jar
+We use {jettywrapper}[https://github.com/projecthydra/jettywrapper] to wrap a test instance of GeoServer. In theory, you should be able to point to any other local installation. Suppose that you download the binary stable version 2.1.3 binary from {here}[http://sourceforge.net/project/downloading.php?groupname=geoserver&filename=geoserver-2.1.3-bin.zip&use_mirror=softlayer], unzip under say, /tmp/geoserver-2.1.3, relative to the source directory of this gem.
+The integration tests are executed as follows:
+  > rake integration['/tmp/geoserver-2.1.3','8080','-DGEOSERVER_DATA_DIR=data_dir']
 
-  Go to rgeoserver source directory and execute the tests:
-  > rake 
+To generate the documentation run:
+  > rake yard
 
+To enter into an irb console with all classess loaded:
   > rake console
 
 == Related Resources
@@ -50,11 +51,11 @@ Download version 2.1.3 binary from {here}[http://sourceforge.net/project/downloa
 
 == Release History
 
-- <b>v0.1.0</b> - Initial alpha release
+- <b>v0.5.0</b> - Initial alpha release
 
 == TODO
 - Complete stores and coverages functionality, handle Layers, styles and data upload.
-- Complete documentaion and test coverage with embedded Jetty.
+- Complete documentaion and test coverage. Add more flexibility for integration tests with embedded Jetty and other containers.
 - Migrate base HTTP client to {Weary}[https://github.com/mwunsch/weary]?
 
 == Contributing with Patches and Pull requests checklist

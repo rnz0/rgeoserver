@@ -21,8 +21,8 @@ module RGeoServer
     end
 
     # Search a resource in the catalog
-    # @params [OrderedHash] what
-    # @params [Hash] options
+    # @param [OrderedHash] what
+    # @param [Hash] options
     def search what, options = {}
       resources = client[url_for(what, options)]
       resources.options[:headers] ||= headers(:xml)
@@ -36,7 +36,7 @@ module RGeoServer
     end
 
     # Fetch an arbitrary URL within the catalog
-    # @params [String] url
+    # @param [String] url
     def fetch_url url
       url.slice! client.url
       fetcher = client[url]
@@ -52,9 +52,9 @@ module RGeoServer
     end
 
     # Add resource to the catalog
-    # @params [String] what
-    # @params [String] message
-    # @params [Symbol] method
+    # @param [String] what
+    # @param [String] message
+    # @param [Symbol] method
     def add what, message, method = :post
       request = client[url_for(what)]
       request.options[:headers] ||= headers(:xml)
@@ -69,8 +69,8 @@ module RGeoServer
     end
 
     # Modify resource in the catalog
-    # @params [String] what
-    # @params [String] message
+    # @param [String] what
+    # @param [String] message
     def modify what, message
       request = client[url_for(what, {})]
       request.options[:headers] ||= headers(:xml) 
@@ -86,8 +86,8 @@ module RGeoServer
     end
 
     # Purge resource from the catalog. Options can include recurse=true or false
-    # @params [OrderedHash] what
-    # @params [Hash] options
+    # @param [OrderedHash] what
+    # @param [Hash] options
     def purge what, options
       request = client[url_for(what, options)]
       begin

@@ -22,7 +22,6 @@ module RGeoServer
       "Catalog: #{@config[:url]}"
     end
 
-      #  r = RestClient::Resource.new 'http://localhost:8080/geoserver/rest/workspaces.xml', :user => 'admin', :password => 'geoserver', :headers => {:accept=>:xml, :content_type=> :xml}
     def client config = {}
       c = self.config.merge(config)
       @client ||= RestClient::Resource.new(c[:url], :user => c[:user], :password => c[:password], :headers => c[:headers])
