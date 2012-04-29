@@ -55,7 +55,7 @@ module RGeoServer
     # @param [String] what
     # @param [String] message
     # @param [Symbol] method
-    def add what, message, method = :post
+    def add what, message, method
       request = client[url_for(what)]
       request.options[:headers] ||= headers(:xml)
       begin 
@@ -71,12 +71,13 @@ module RGeoServer
     # Modify resource in the catalog
     # @param [String] what
     # @param [String] message
-    def modify what, message
+    # @param [Symbol] method
+    def modify what, message, method
       request = client[url_for(what, {})]
       request.options[:headers] ||= headers(:xml) 
       $logger.debug "Modifying: \n #{message}"
       begin 
-        return request.put message
+        return request.send method, message
       rescue RestClient::InternalServerError => e
         $logger.error e.response
         $logger.flush if $logger.respond_to? :flush

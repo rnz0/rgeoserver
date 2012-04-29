@@ -20,7 +20,11 @@ module RGeoServer
         @@r.root
       end
 
-      def self.method
+      def self.create_method
+        :post 
+      end
+
+      def self.save_method
         :put 
       end
 
@@ -47,7 +51,7 @@ module RGeoServer
       def message
         builder = Nokogiri::XML::Builder.new do |xml|
           xml.dataStore {
-            xml.enabled 'true'
+            xml.enabled true
             xml.name @name
             xml.connectionParameters {  # this could be empty
               @connection_parameters.each_pair { |k,v| 

@@ -4,7 +4,7 @@ module RGeoServer
     class DataStores < ResourceInfo
   
       OBJ_ATTRIBUTES = {:enabled => "enabled", :catalog => "catalog", :workspace => "workspace", :name => "name"} 
-      OBJ_DEFAULT_ATTRIBUTES = {:enabled => true, :catalog => nil, :workspace => nil, :name => nil, }
+      OBJ_DEFAULT_ATTRIBUTES = {:enabled => 'true', :catalog => nil, :workspace => nil, :name => nil, }
       define_attribute_methods OBJ_ATTRIBUTES.keys
       update_attribute_accessors OBJ_ATTRIBUTES
  
@@ -18,7 +18,11 @@ module RGeoServer
         @@r.root
       end
 
-      def self.method
+      def self.create_method
+        :put 
+      end
+
+      def self.update_method
         :put 
       end
 
@@ -75,23 +79,5 @@ module RGeoServer
         }
       end
 
-      def profile_xml_to_hash1 profile_xml
-        doc = profile_xml_to_ng profile_xml 
-        h = {
-          "name" => doc.at_xpath('//name').text.strip, 
-          "enabled" => doc.at_xpath('//enabled/text()').to_s,
-          "connectionParameters" => doc.xpath('//connectionParameters/entry').collect{ |e| {e['key'].to_sym => e.text.to_s} } 
-        }
-        doc.xpath('//featureTypes/atom:link/@href', "xmlns:atom"=>"http://www.w3.org/2005/Atom" ).each{ |l| 
-          h[:featuretypes] = begin
-            response = @catalog.fetch_url l.text
-            Nokogiri::XML(response).xpath('//name/text()').collect{ |a| a.text }
-          rescue RestClient::ResourceNotFound
-            [] 
-          end.freeze
-          
-         }
-        h  
-      end
     end
 end 

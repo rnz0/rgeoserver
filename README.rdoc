@@ -55,6 +55,7 @@ To enter into an irb console with all classess loaded:
 == TODO
 - Complete stores and coverages functionality, handle Layers, styles and data upload.
 - Complete documentaion and test coverage. Add more flexibility for integration tests with embedded Jetty and other containers.
+- Add ability to connect under SSL.
 - Migrate base HTTP client to {Weary}[https://github.com/mwunsch/weary]?
 
 == Contributing with Patches and Pull requests checklist

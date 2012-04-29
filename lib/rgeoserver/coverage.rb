@@ -19,7 +19,11 @@ module RGeoServer
         @@r.root
       end
 
-      def self.method
+      def self.create_method
+        :put 
+      end
+
+      def self.update_method
         :put 
       end
 

@@ -15,9 +15,14 @@ module RGeoServer
         @@r.root
       end
 
-      def self.method
+      def self.create_method
         :put 
       end
+      
+      def self.update_method
+        :put 
+      end
+
 
       def self.resource_name
         @@r.resource_name
@@ -35,47 +40,10 @@ module RGeoServer
         @@r.route % [@workspace.name , @data_store.name ]
       end
 
-      def xml options = nil
-        <<-ds
-          <dataStore>
-          <enabled>true</enabled>
-          <name>#{name}</name>
-          <workspace><name>#{workspace_name}</name></workspace>
-            <connectionParameters>
-            <entry key="url">file:data/shapefiles/states.shp</entry>
-            <entry key="namespace">http://www.openplans.org/topp</entry>
-            </connectionParameters>
-            <__default>false</__default>
-            <featureTypes>
-            <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://localhost:8080/geoserver/rest/workspaces/topp/datastores/states_shapefile/featuretypes.xml" type="application/xml"/>
-            </featureTypes>
-         </dataStore>
-        ds
+      def message
+        "<featureType/>"
       end
 
-      def name
-        @name      
-      end
-
-      def workspace
-        @workspace
-      end 
-
-      def data_store
-        @data_store
-      end 
-
-      def catalog
-        @catalog
-      end
-
-      def workspace_name
-        @workspace.name
-      end
-
-      def data_store_name
-        @data_store.name
-      end
 
       # @param [RGeoServer::Catalog] catalog
       # @param [Hash] options
@@ -125,7 +93,7 @@ module RGeoServer
         doc = profile_xml_to_ng profile_xml
         h = {
           :name => doc.at_xpath('//name').text.strip, 
-          :workspace => workspace_name, 
+          :workspace => @workspace.name, 
           :nativeName => doc.at_xpath('//nativeName').text.to_s
         }.freeze  
         h  

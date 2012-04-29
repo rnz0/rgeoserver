@@ -27,24 +27,24 @@ describe "Integration test against a GeoServer instance", :integration => true d
 
     it "should save new items" do
       obj = RGeoServer::Workspace.new @catalog, :name => 'test_ws'
-      obj.delete(:purge=>true) if !obj.new?
+      obj.delete(:recurse=>true) if !obj.new?
       obj.new?.should == true
       obj.profile.should == {}  
       obj.save
       obj.new?.should == false
-      obj.enabled.should == true
-      obj.delete :purge => true
+      obj.enabled.should == 'true'
+      obj.delete :recurse => true
     end
 
     it "should fail trying to delete unsaved (new) workspace" do
       obj = RGeoServer::Workspace.new @catalog, :name => 'test'
-      obj.delete(:purge=>true) if !obj.new?
+      obj.delete(:recurse=>true) if !obj.new?
       obj.delete.should raise_error
     end
 
     it "should fail trying to delete unexisting workspace names from catalog" do
       lambda{ ["asdfdg", "test3", "test5", "test6"].each{ |w| 
-          @catalog.purge({:workspaces => w}, {:purge  => true})
+          @catalog.purge({:workspaces => w}, {:recurse  => true})
         }
       }.should raise_error
     end
@@ -64,7 +64,6 @@ describe "Integration test against a GeoServer instance", :integration => true d
       end
 
       it "should list datastore objects that belong to it" do
-
         @ws.data_stores.each{ |ds| 
           ds.should be_kind_of(RGeoServer::DataStore)
           ["s1", "s2", "s3"].should include ds.name
@@ -81,7 +80,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
     end
   
     after :all do
-      @ws.delete :purge => true
+      @ws.delete :recurse => true
     end
 
     context "DataStores" do
@@ -98,7 +97,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
         obj.new?.should raise_error 
       end
 
-      it "should create a datastore under existing workspace and update it right after" do
+      it "should create a datastore under existing workspace, update and delete it right after" do
         ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test', :connection_parameters => {"namespace"=>"http://test_workspace_for_stores", "url" => "file://tmp/geo.tif"}
         ds.new?.should == true
         ds.save
@@ -116,7 +115,21 @@ describe "Integration test against a GeoServer instance", :integration => true d
       end
     end
     context "CoverageStores" do
-      pending "Finish CoverageStore spec"
+      it "should create a coverage store under existing workspace, update and delete it right after" do
+        cs = RGeoServer::CoverageStore.new @catalog, :workspace => @ws, :name => 'test_coverage_store'
+        cs.url = "file:data_dir/sf/raster.tif"
+        cs.description = 'description'
+        cs.enabled = 'true'
+        cs.data_type = 'GeoTIFF'
+        cs.new?.should == true
+        cs.save 
+        cs.new?.should == false
+        cs.description = 'new description'
+        cs.description_changed?.should == true
+        cs.save
+        cs.description.should == 'new description'
+        cs.new?.should == false
+      end
     end
   end
 end

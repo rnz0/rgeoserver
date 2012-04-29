@@ -4,7 +4,7 @@ module RGeoServer
     class Workspace < ResourceInfo
 
       OBJ_ATTRIBUTES = {:enabled => 'enabled', :catalog => 'catalog', :name => 'name' }
-      OBJ_DEFAULT_ATTRIBUTES = {:enabled => true, :catalog => nil, :name => nil }
+      OBJ_DEFAULT_ATTRIBUTES = {:enabled => 'true', :catalog => nil, :name => nil }
 
       define_attribute_methods OBJ_ATTRIBUTES.keys
       update_attribute_accessors OBJ_ATTRIBUTES
@@ -15,8 +15,12 @@ module RGeoServer
         @@r.resource_name
       end
 
-      def self.method 
+      def self.create_method 
         :post 
+      end
+
+      def self.update_method 
+        :put 
       end
  
       def self.root_xpath
@@ -54,19 +58,19 @@ module RGeoServer
 
       def data_stores
         profile['dataStores'].collect{ |name| 
-          DataStore.new @catalog, :workspace => self, :name => name if name 
+          DataStore.new @catalog, :workspace => self, :name => name
         }
       end
     
       def coverage_stores
         profile['coverageStores'].collect{ |name| 
-          CoverageStore.new @catalog, :workspace => self, :name => name if name 
+          CoverageStore.new @catalog, :workspace => self, :name => name
         }
       end
 
       def wms_stores
         profile['wmsStores'].collect{ |name| 
-          WmsStore.new @catalog, :workspace => self, :name => name if name 
+          WmsStore.new @catalog, :workspace => self, :name => name
         }
       end
  

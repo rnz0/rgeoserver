@@ -4,7 +4,7 @@ module RGeoServer
     class CoverageStore < ResourceInfo
 
       OBJ_ATTRIBUTES = {:catalog => 'catalog', :workspace => 'workspace', :url => 'url', :data_type => 'type', :name => 'name', :enabled => 'enabled', :description => 'description'}  
-      OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :workspace => nil, :url => '', :data_type => 'GeoTIFF', :name => nil, :enabled => true, :description=>nil}  
+      OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :workspace => nil, :url => '', :data_type => 'GeoTIFF', :name => nil, :enabled => 'true', :description=>nil}  
       define_attribute_methods OBJ_ATTRIBUTES.keys
       update_attribute_accessors OBJ_ATTRIBUTES
   
@@ -18,7 +18,11 @@ module RGeoServer
         @@r.root
       end
 
-      def self.method
+      def self.create_method
+        :post 
+      end
+
+      def self.update_method
         :put 
       end
 
@@ -41,11 +45,14 @@ module RGeoServer
       def message
         builder = Nokogiri::XML::Builder.new do |xml|
           xml.coverageStore {
-            xml.name @name
-            xml.enabled profile['enabled'] 
-            xml.type_ @data_type if data_type_changed?
-            xml.description @description if description_changed?
-            xml.url @url if url_changed? 
+            xml.name @name if new?
+            xml.workspace {
+              xml.name @workspace.name
+            }
+            xml.enabled @enabled if (enabled_changed? || new?)
+            xml.type_ @data_type if (data_type_changed? || new?)
+            xml.description @description if (description_changed? || new?)
+            xml.url @url if (url_changed? || new?)
           }
         end
         @message = builder.doc.to_xml 
@@ -73,39 +80,22 @@ module RGeoServer
 
       def coverages
         profile["coverages"].collect{ |name|
-          Coverage.new @catalog, :workspace => @workspace, :coverage_store => self, :name => name if name
+          Coverage.new @catalog, :workspace => @workspace, :coverage_store => self, :name => name
         }
       end
 
-      def profile_xml_to_ng1 profile_xml
-        Nokogiri::XML(profile_xml).xpath(self.member_xpath)
-      end 
-
-      def profile_xml_to_hash2 profile_xml
+      def profile_xml_to_hash profile_xml
         doc = profile_xml_to_ng profile_xml 
-        {
+        h = {
           'name' => doc.at_xpath('//name').text.strip, 
           'workspace' => @workspace.name, 
           'type' => doc.at_xpath('//type/text()').to_s,
           'enabled' => doc.at_xpath('//enabled/text()').to_s,
           'description' => doc.at_xpath('//description/text()').to_s,
           'url' => doc.at_xpath('//url/text()').to_s
-        }
+        }.freeze
+        h
       end
 
-      def profile_xml_to_hash1 profile_xml
-        doc = profile_xml_to_ng profile_xml 
-        h = {:name => doc.at_xpath('//name').text.strip, :workspace => @workspace.name, :coverages => [] }
-        doc.xpath('//coverages/atom:link/@href', "xmlns:atom"=>"http://www.w3.org/2005/Atom" ).each{ |l| 
-          h[:coverages] << { 
-            :name => l.parent.parent.at_xpath('//name/text()').to_s,
-            :type => l.parent.parent.at_xpath('//type/text()').to_s,
-            :enabled => l.parent.parent.at_xpath('//enabled/text()').to_s,
-            :description => l.parent.parent.at_xpath('//description/text()').to_s,
-            :url => l.parent.parent.at_xpath('//url/text()').to_s
-          }
-        }
-        h  
-      end
     end
 end 

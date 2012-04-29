@@ -11,7 +11,7 @@ module RGeoServer
 
       # mapping object parameters to profile elements
       OBJ_ATTRIBUTES = {:enabled => 'enabled'} 
-      OBJ_DEFAULT_ATTRIBUTES = {:enabled => true}
+      OBJ_DEFAULT_ATTRIBUTES = {:enabled => 'true'}
 
       define_attribute_methods OBJ_ATTRIBUTES.keys
 
@@ -38,14 +38,14 @@ module RGeoServer
         "#{self.class.name}: #{name}"
       end
 
-      # Add resource to Geoserver catalog      
-      def self.create options, catalog = nil
-        raise GeoServerInvalidRequest, "Can't create a #{self.class.resource_name} resource with empty name" if options[:name].nil?
-        catalog ||= RGeoServer.catalog
-        catalog.add @route, xml(options)
-        self.class.new catalog, options
+      def create_method
+        self.class.create_method
       end
- 
+
+      def update_method
+        self.class.update_method
+      end
+
       # Modify or save the resource
       # @param options [Hash] 
       # @return [RGeoServer::ResourceInfo] 
@@ -54,10 +54,10 @@ module RGeoServer
         @changed_attributes.clear
         run_callbacks :save do
           if new?
-              @catalog.add(@route, message) 
+              @catalog.add(@route, message, create_method) 
               clear 
           else
-            @catalog.modify({@route => @name}, message) #unless changes.empty? 
+            @catalog.modify({@route => @name}, message, update_method) #unless changes.empty? 
           end
 
           self
