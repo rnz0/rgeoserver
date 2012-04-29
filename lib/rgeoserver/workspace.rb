@@ -56,22 +56,16 @@ module RGeoServer
         @route = route
       end
 
-      def data_stores
-        profile['dataStores'].collect{ |name| 
-          DataStore.new @catalog, :workspace => self, :name => name
-        }
+      def data_stores &block
+        self.class.list DataStore, @catalog, profile['dataStores'], {:workspace => self}, check_remote = true, &block
       end
     
-      def coverage_stores
-        profile['coverageStores'].collect{ |name| 
-          CoverageStore.new @catalog, :workspace => self, :name => name
-        }
+      def coverage_stores &block
+        self.class.list CoverageStore, @catalog, profile['coverageStores'], {:workspace => self}, check_remote = true, &block
       end
 
-      def wms_stores
-        profile['wmsStores'].collect{ |name| 
-          WmsStore.new @catalog, :workspace => self, :name => name
-        }
+      def wms_stores &block
+        self.class.list WmsStore, @catalog, profile['wmsStores'], {:workspace => self}, check_remote = true, &block
       end
  
     end

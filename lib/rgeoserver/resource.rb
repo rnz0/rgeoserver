@@ -30,6 +30,24 @@ module RGeoServer
         end
       end
 
+      # Generic object construction iterator
+      # @param [RGeoServer::ResourceInfo.class] klass
+      # @param [RGeoServer::Catalog] catalog
+      # @param [Array<String>] names
+      # @param [Hash] options
+      # @param [bool] check_remote if already exists in catalog and cache it
+      # @yield [RGeoServer::ResourceInfo] 
+      def self.list klass, catalog, names, options, check_remote = false, &block
+        return to_enum(:list, klass, catalog, names, options).to_a unless block_given?
+         
+        (names.is_a?(Array)? names : [names]).each { |name|
+          obj = klass.new catalog, options.merge(:name => name)
+          obj.new? if check_remote  
+          block.call(obj)
+        }        
+        
+      end
+
       def initialize options
         @new = true
       end
@@ -46,8 +64,9 @@ module RGeoServer
         self.class.update_method
       end
 
+
       # Modify or save the resource
-      # @param options [Hash] 
+      # @param [Hash] options
       # @return [RGeoServer::ResourceInfo] 
       def save options = {}
         @previously_changed = changes
@@ -65,7 +84,7 @@ module RGeoServer
       end
      
       # Purge resource from Geoserver Catalog
-      # @param options [Hash] 
+      # @param [Hash] options
       # @return [RGeoServer::ResourceInfo] `self`
       def delete options = {} 
         run_callbacks :destroy do

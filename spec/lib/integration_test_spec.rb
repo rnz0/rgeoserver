@@ -64,10 +64,10 @@ describe "Integration test against a GeoServer instance", :integration => true d
       end
 
       it "should list datastore objects that belong to it" do
-        @ws.data_stores.each{ |ds| 
+        @ws.data_stores do |ds| 
           ds.should be_kind_of(RGeoServer::DataStore)
           ["s1", "s2", "s3"].should include ds.name
-        }
+        end
       end
 
     end

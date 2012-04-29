@@ -50,7 +50,7 @@ To enter into an irb console with all classess loaded:
 
 == Release History
 
-- <b>v0.5.0</b> - Initial alpha release
+- <b>v0.5</b> - Initial alpha release
 
 == TODO
 - Complete stores and coverages functionality, handle Layers, styles and data upload.

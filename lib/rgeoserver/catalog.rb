@@ -32,12 +32,13 @@ module RGeoServer
       {:accept => sym, :content_type=> sym}
     end
 
-    # List of workspaces available
+    # List of available workspaces
     # @return [Array<RGeoServer::Workspace>]
-    def get_workspaces
+    def get_workspaces &block
       response = self.search :workspaces => nil 
       doc = Nokogiri::XML(response)
-      doc.xpath(Workspace.root_xpath).collect { |w| Workspace.new self, :name => w.text } 
+      workspaces = doc.xpath(Workspace.root_xpath).collect{|w| w.text.to_s }
+      ResourceInfo.list Workspace, self, workspaces, {}, &block
     end
    
     # @param [String] workspace

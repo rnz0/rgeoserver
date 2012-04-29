@@ -78,10 +78,8 @@ module RGeoServer
         end        
       end
 
-      def coverages
-        profile["coverages"].collect{ |name|
-          Coverage.new @catalog, :workspace => @workspace, :coverage_store => self, :name => name
-        }
+      def coverages &block
+        self.class.list Coverage, @catalog, profile['coverages'], {:workspace => @workspace}, check_remote = true, &block
       end
 
       def profile_xml_to_hash profile_xml

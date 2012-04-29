@@ -86,10 +86,8 @@ module RGeoServer
         end        
       end
 
-      def featuretypes
-        profile["featureTypes"].collect{ |name|
-          FeatureType.new @catalog, :workspace => @workspace, :data_store => self, :name => name
-        }
+      def featuretypes &block
+        self.class.list FeatureType, @catalog, profile['featureTypes'], {:workspace => @workspace}, check_remote = true, &block
       end
 
       def profile_xml_to_hash profile_xml
