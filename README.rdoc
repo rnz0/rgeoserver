@@ -30,6 +30,36 @@ http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html
   > ft.profile
   => {:name=>"states", :workspace=>"topp", :nativeName=>"states"}  
 
+A full sample script creating coverage stores in a small cluster:
+
+  require 'rgeoserver'
+
+  layers = {
+    'south_america_1787' => {
+      'url' => 'file:///geo_data/rumsey/g0411047.tif',
+      'description' => "Map of South America by D'Anville",
+      'type' => 'GeoTIFF'
+     },
+    'city_of_san_francisco_1859' => {
+      'url' => 'file:///geo_data/rumsey/g1030000alpha.tif',
+      'description' => 'Map of San Francisco by the U.S. Coast Survey, with detail of the unsettled lands',
+      'type' => 'GeoTIFF'
+    }
+  }
+
+  (1..7).each do |cat_id|
+    cat = RGeoServer::Catalog.new :user=>'admin', :url => "http://geoserver-app#{cat_id}/rest", :password => "osgeo!"
+    ws = cat.get_workspace('cite')
+    RGeoServer::ResourceInfo.list(RGeoServer::CoverageStore, cat, layers.keys, :workspace => ws) do |cs|
+      cs.description = layers[cs.name]['description']
+      cs.url = layers[cs.name]['url']
+      cs.data_type = layers[cs.name]['type']
+      cs.enabled = 'true'
+      cs.save
+    end
+  end
+
+
 == Testing
 We use {jettywrapper}[https://github.com/projecthydra/jettywrapper] to wrap a test instance of GeoServer. In theory, you should be able to point to any other local installation. Suppose that you download the binary stable version 2.1.3 binary from {here}[http://sourceforge.net/project/downloading.php?groupname=geoserver&filename=geoserver-2.1.3-bin.zip&use_mirror=softlayer], then unzip it under say, /tmp/geoserver-2.1.3. The integration tests are executed as follows:
   > rake integration['/tmp/geoserver-2.1.3','8080','-DGEOSERVER_DATA_DIR=data_dir']

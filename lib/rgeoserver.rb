@@ -1,5 +1,6 @@
 require 'active_model'
 require 'yaml'
+require 'confstruct'
 
 module RGeoServer
   autoload :Config, "rgeoserver/config"
