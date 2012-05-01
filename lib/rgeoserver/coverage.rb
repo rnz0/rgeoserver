@@ -75,10 +75,10 @@ module RGeoServer
         h = {
           "coverage_store" => @coverage_store.name,
           "workspace" => @workspace.name,
-          "name" => doc.at_xpath('//name/text()').text.strip,,
-          "nativeName" => doc.at_xpath('//nativeName/text()').to_s,
-          "title" => doc.at_xpath('//title/text()').to_s,
-          "supportedFormats" => doc.xpath('//supportedFormats/string/text()').collect{ |t| t.to_s }
+          "name" => doc.at_xpath('//name').text.strip,
+          "nativeName" => doc.at_xpath('//nativeName').to_s,
+          "title" => doc.at_xpath('//title').to_s,
+          "supportedFormats" => doc.xpath('//supportedFormats/string').collect{ |t| t.to_s }
         }.freeze
         h  
       end

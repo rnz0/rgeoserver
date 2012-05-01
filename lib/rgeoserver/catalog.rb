@@ -42,7 +42,7 @@ module RGeoServer
     end
    
     # @param [String] workspace name
-    # @return [<RGeoServer::Workspace]
+    # @return [RGeoServer::Workspace]
     def get_workspace workspace
       response = self.search :workspaces => workspace
       doc = Nokogiri::XML(response)
@@ -50,7 +50,7 @@ module RGeoServer
       return Workspace.new self, :name => name.text if name
     end
 
-    # @return [<RGeoServer::Workspace]
+    # @return [RGeoServer::Workspace]
     def get_default_workspace
       dw = Workspace.new self, :name => 'default'
       w = Workspace.new self, :name => w.name
@@ -65,7 +65,7 @@ module RGeoServer
     # @param [String] store
     # @param [String] workspace
     def reassign_workspace store, workspace
-      pass
+      raise NotImplementedError
     end
 
 
@@ -79,7 +79,7 @@ module RGeoServer
     end
    
     # @param [String] layer name
-    # @return [<RGeoServer::Layer]
+    # @return [RGeoServer::Layer]
     def get_layer layer
       response = self.search :layers => layer
       doc = Nokogiri::XML(response)
@@ -129,8 +129,7 @@ module RGeoServer
     # @param [String] datastore 
     # @return [Array<RGeoServer::FeatureType>]
     def get_feature_types workspace, datastore
-      pass  
-
+      raise NotImplementedError  
     end
 
     # @param [String] workspace
@@ -138,8 +137,7 @@ module RGeoServer
     # @param [String] featuretype_id  
     # @return [RGeoServer::FeatureType]
     def get_feature_type workspace, datastore, featuretype_id
-      pass  
-  
+      raise NotImplementedError  
     end    
 
 

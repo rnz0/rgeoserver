@@ -100,7 +100,7 @@ module RGeoServer
         doc.xpath('//featureTypes/atom:link/@href', "xmlns:atom"=>"http://www.w3.org/2005/Atom" ).each{ |l| 
           h["featureTypes"] = begin
             response = @catalog.fetch_url l.text
-            Nokogiri::XML(response).xpath('//name/text()').collect{ |a| a.text }
+            Nokogiri::XML(response).xpath('//name/text()').collect{ |a| a.text.strip }
           rescue RestClient::ResourceNotFound
             [] 
           end.freeze

@@ -93,6 +93,12 @@ describe "Integration test against a GeoServer instance", :integration => true d
     end
 
     context "DataStores" do
+      it "should list all available data stores" do
+        @catalog.get_data_stores.each { |d|  
+          d.profile.should_not be_empty
+        }
+      end
+
       it "should instantiate a datastore" do
         obj = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile'
         obj.new?.should == true
@@ -125,6 +131,11 @@ describe "Integration test against a GeoServer instance", :integration => true d
     end
 
     context "CoverageStores" do
+      it "should list all available coverage stores" do
+        @catalog.get_coverage_stores.each { |c|  
+          c.profile.should_not be_empty
+        }
+      end
       it "should create a coverage store under existing workspace, update and delete it right after" do
         cs = RGeoServer::CoverageStore.new @catalog, :workspace => @ws, :name => 'test_coverage_store'
         cs.url = "file:data_dir/sf/raster.tif"

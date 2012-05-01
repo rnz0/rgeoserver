@@ -76,6 +76,10 @@ module RGeoServer
         end
       end
 
+      def styles &block
+        self.class.list Style, @catalog, profile['styles'], {:layer => self}, check_remote = true, &block
+      end
+
       def profile_xml_to_hash profile_xml
         doc = profile_xml_to_ng profile_xml
         name = doc.at_xpath('//name/text()').text.strip
@@ -95,7 +99,7 @@ module RGeoServer
           },
           "resource" => {
             "type" => doc.at_xpath('//resource/@class').to_s,
-            "name" => doc.at_xpath('//resource/name').to_s,
+            "name" => doc.at_xpath('//resource/name/text()').to_s,
             "store" => store,
             "workspace" => workspace 
           },

@@ -82,7 +82,7 @@ module RGeoServer
           else
             h[l.parent.parent.name.to_s] = begin
               response = @catalog.fetch_url l.text
-              Nokogiri::XML(response).xpath('//name/text()').collect{ |a| a.text }
+              Nokogiri::XML(response).xpath('//name').collect{ |a| a.text.strip }
             rescue RestClient::ResourceNotFound
               []
             end.freeze
