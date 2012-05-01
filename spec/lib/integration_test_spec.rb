@@ -7,6 +7,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
     @catalog = RGeoServer.catalog
   end
 
+
   context "Workspaces" do 
     it "should list workspaces" do
       @catalog.get_workspaces.each{ |obj|
@@ -73,6 +74,14 @@ describe "Integration test against a GeoServer instance", :integration => true d
     end
   end
 
+  context "Layers" do 
+    it "shoult list layers" do
+        @catalog.get_layers.each { |l| 
+          l.profile.should_not be_empty
+        }
+    end
+  end
+
   context "Stores" do
     before :all do
       @ws = RGeoServer::Workspace.new @catalog, :name => 'test_workspace_for_stores'
@@ -114,6 +123,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
         ds.delete
       end
     end
+
     context "CoverageStores" do
       it "should create a coverage store under existing workspace, update and delete it right after" do
         cs = RGeoServer::CoverageStore.new @catalog, :workspace => @ws, :name => 'test_coverage_store'

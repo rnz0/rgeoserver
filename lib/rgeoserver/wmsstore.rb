@@ -99,6 +99,11 @@ module RGeoServer
         catalog_will_change! unless val == @catalog
         @catalog = val
       end
+ 
+      def profile_xml_to_hash profile_xml
+        doc = profile_xml_to_ng profile_xml 
+        return {'name' => doc.at_xpath('//name').text.strip, 'enabled' => @enabled }
+      end
 
     end
 end 

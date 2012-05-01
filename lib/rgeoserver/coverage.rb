@@ -75,7 +75,7 @@ module RGeoServer
         h = {
           "coverage_store" => @coverage_store.name,
           "workspace" => @workspace.name,
-          "name" => doc.at_xpath('//name/text()').text.strip,
+          "name" => doc.at_xpath('//name/text()').text.strip,,
           "nativeName" => doc.at_xpath('//nativeName/text()').to_s,
           "title" => doc.at_xpath('//title/text()').to_s,
           "supportedFormats" => doc.xpath('//supportedFormats/string/text()').collect{ |t| t.to_s }

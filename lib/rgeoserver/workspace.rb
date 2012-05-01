@@ -68,5 +68,28 @@ module RGeoServer
         self.class.list WmsStore, @catalog, profile['wmsStores'], {:workspace => self}, check_remote = true, &block
       end
  
+      def profile_xml_to_hash profile_xml
+        doc = profile_xml_to_ng profile_xml 
+        h = {'name' => doc.at_xpath('//name').text.strip, 'enabled' => @enabled }
+        doc.xpath('//atom:link/@href', "xmlns:atom"=>"http://www.w3.org/2005/Atom" ).each{ |l| 
+          target = l.text.match(/([a-zA-Z]+)\.xml$/)[1]
+          if !target.nil? && target != l.parent.parent.name.to_s.downcase
+            begin
+              h[l.parent.parent.name.to_s] << target
+            rescue
+              h[l.parent.parent.name.to_s] = []
+            end
+          else
+            h[l.parent.parent.name.to_s] = begin
+              response = @catalog.fetch_url l.text
+              Nokogiri::XML(response).xpath('//name/text()').collect{ |a| a.text }
+            rescue RestClient::ResourceNotFound
+              []
+            end.freeze
+          end
+         }
+        h  
+      end
+ 
     end
 end 

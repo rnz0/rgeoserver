@@ -41,7 +41,7 @@ module RGeoServer
       ResourceInfo.list Workspace, self, workspaces, {}, &block
     end
    
-    # @param [String] workspace
+    # @param [String] workspace name
     # @return [<RGeoServer::Workspace]
     def get_workspace workspace
       response = self.search :workspaces => workspace
@@ -52,7 +52,10 @@ module RGeoServer
 
     # @return [<RGeoServer::Workspace]
     def get_default_workspace
-      return Workspace.new self, :name => 'default'
+      dw = Workspace.new self, :name => 'default'
+      w = Workspace.new self, :name => w.name
+      raise "No default workspace is available in the catalog" unless w.new?
+      w
     end
  
     def set_default_workspace
@@ -65,9 +68,28 @@ module RGeoServer
       pass
     end
 
-    # List of feature types
+
+    # List of available layers
+    # @return [Array<RGeoServer::Layer>]
+    def get_layers &block
+      response = self.search :layers => nil 
+      doc = Nokogiri::XML(response)
+      layers = doc.xpath(Layer.root_xpath).collect{|l| l.text.to_s }
+      ResourceInfo.list Layer, self, layers, {}, &block
+    end
+   
+    # @param [String] layer name
+    # @return [<RGeoServer::Layer]
+    def get_layer layer
+      response = self.search :layers => layer
+      doc = Nokogiri::XML(response)
+      name = doc.at_xpath(Layer.member_xpath)
+      return Workspace.new self, :name => name.text if name
+    end
+
+
+    # List of available namespaces
     # @return [Array<RGeoServer::Namespace>]
-    # TODO: Implement when the stable release includes it
     def get_namespaces 
       raise NotImplementedError
     end 

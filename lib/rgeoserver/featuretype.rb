@@ -92,9 +92,9 @@ module RGeoServer
       def profile_xml_to_hash profile_xml
         doc = profile_xml_to_ng profile_xml
         h = {
-          :name => doc.at_xpath('//name').text.strip, 
-          :workspace => @workspace.name, 
-          :nativeName => doc.at_xpath('//nativeName').text.to_s
+          "name" => doc.at_xpath('//name').text.strip, 
+          "workspace" => @workspace.name, 
+          "nativeName" => doc.at_xpath('//nativeName').to_s
         }.freeze  
         h  
       end
