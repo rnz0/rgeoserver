@@ -33,19 +33,14 @@ Sample usage from an irb console
   => {:name=>"states", :workspace=>"topp", :nativeName=>"states"}  
 
   > lyr = RGeoServer::Layer.new c, :name => 'Arc_Sample'
-   => RGeoServer::Layer: Arc_Sample 
-  > sld = lyr.styles.first
-   => RGeoServer::Style: raster 
-  > sld.profile
-   => {"name"=>"raster", "sld_version"=>"1.0.0", "filename"=>"raster.sld", "sld"=>{"sld_name"=>"raster", "sld_title"=>"Default Raster"}} 
-
-
-  > lyr = catalog.get_layers.first
+  => RGeoServer::Layer: Arc_Sample 
   > lyr.profile
-  
+  => {"name"=>"Arc_Sample", "path"=>"/", "defaultstyle"=>"rain", "styles"=>["raster"], "type"=>"RASTER", "enabled"=>"true", "attribution"=>{"logoWidth"=>"0", "logoHeight"=>"0"}, "resource"=>{"type"=>"coverage", "name"=>"Arc_Sample", "store"=>"arcGridSample", "workspace"=>"nurc"}, "metadata"=>{"GWC.autoCacheStyles"=>"true", "GWC.metaTilingX"=>"4", "GWC.metaTilingY"=>"4", "GWC.gutter"=>"0", "GWC.cachedNonDefaultStyles"=>"raster", "GWC.enabled"=>"true", "GWC.cacheFormats"=>"image/jpeg,image/png", "GWC.gridSets"=>"EPSG:4326,EPSG:900913"}}
   > sld = lyr.styles.first
+  => RGeoServer::Style: raster 
   > sld.profile
-  {"name"=>"grass", "sld_version"=>"1.0.0", "filename"=>"grass_poly.sld", "sld"=>{"sld_name"=>"grass", "sld_title"=>"Grass fill"}}
+  => {"name"=>"raster", "sld_version"=>"1.0.0", "filename"=>"raster.sld", "sld"=>{"sld_name"=>"raster", "sld_title"=>"Default Raster"}} 
+
  
 A full sample script creating coverage stores in a small cluster:
 
