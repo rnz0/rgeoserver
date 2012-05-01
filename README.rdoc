@@ -32,6 +32,21 @@ Sample usage from an irb console
   > ft.profile
   => {:name=>"states", :workspace=>"topp", :nativeName=>"states"}  
 
+  > lyr = RGeoServer::Layer.new c, :name => 'Arc_Sample'
+   => RGeoServer::Layer: Arc_Sample 
+  > sld = lyr.styles.first
+   => RGeoServer::Style: raster 
+  > sld.profile
+   => {"name"=>"raster", "sld_version"=>"1.0.0", "filename"=>"raster.sld", "sld"=>{"sld_name"=>"raster", "sld_title"=>"Default Raster"}} 
+
+
+  > lyr = catalog.get_layers.first
+  > lyr.profile
+  
+  > sld = lyr.styles.first
+  > sld.profile
+  {"name"=>"grass", "sld_version"=>"1.0.0", "filename"=>"grass_poly.sld", "sld"=>{"sld_name"=>"grass", "sld_title"=>"Grass fill"}}
+ 
 A full sample script creating coverage stores in a small cluster:
 
   require 'rgeoserver'

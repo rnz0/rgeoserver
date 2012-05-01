@@ -77,6 +77,7 @@ module RGeoServer
       end
 
       def styles &block
+        puts profile['styles']
         self.class.list Style, @catalog, profile['styles'], {:layer => self}, check_remote = true, &block
       end
 

@@ -71,7 +71,7 @@ module RGeoServer
       def profile_xml_to_hash profile_xml
         doc = profile_xml_to_ng profile_xml 
         h = {'name' => doc.at_xpath('//name').text.strip, 'enabled' => @enabled }
-        doc.xpath('//atom:link/@href', "xmlns:atom"=>"http://www.w3.org/2005/Atom" ).each{ |l| 
+        doc.xpath('//atom:link/@href', "xmlns:atom"=>"http://www.w3.org/2005/Atom").each{ |l| 
           target = l.text.match(/([a-zA-Z]+)\.xml$/)[1]
           if !target.nil? && target != l.parent.parent.name.to_s.downcase
             begin

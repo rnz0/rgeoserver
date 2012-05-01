@@ -14,6 +14,7 @@ module RGeoServer
   autoload :DataStore, "rgeoserver/datastore"
   autoload :CoverageStore, "rgeoserver/coveragestore"
   autoload :WmsStore, "rgeoserver/wmsstore"
+  autoload :Style, "rgeoserver/style"
   autoload :Layer, "rgeoserver/layer"
 
   require 'restclient'

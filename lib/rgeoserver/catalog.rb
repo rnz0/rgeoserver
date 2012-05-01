@@ -32,6 +32,10 @@ module RGeoServer
       {:accept => sym, :content_type=> sym}
     end
 
+    #== Resources
+
+    #= Workspaces
+
     # List of available workspaces
     # @return [Array<RGeoServer::Workspace>]
     def get_workspaces &block
@@ -68,6 +72,7 @@ module RGeoServer
       raise NotImplementedError
     end
 
+    #= Layers
 
     # List of available layers
     # @return [Array<RGeoServer::Layer>]
@@ -84,10 +89,32 @@ module RGeoServer
       response = self.search :layers => layer
       doc = Nokogiri::XML(response)
       name = doc.at_xpath(Layer.member_xpath)
-      return Workspace.new self, :name => name.text if name
+      return Layer.new self, :name => name.text if name
+    end
+
+    #= Styles (SLD Style Layer Descriptor)
+
+    # List of available styles
+    # @return [Array<RGeoServer::Style>]
+    def get_styles &block
+      response = self.search :styles => nil 
+      doc = Nokogiri::XML(response)
+      styles = doc.xpath(Style.root_xpath).collect{|l| l.text.to_s }
+      ResourceInfo.list Style, self, styles, {}, &block
+    end
+   
+    # @param [String] style name
+    # @return [RGeoServer::Style]
+    def get_style style
+      response = self.search :styles => style
+      doc = Nokogiri::XML(response)
+      name = doc.at_xpath(Style.member_xpath)
+      return Style.new self, :name => name.text if name
     end
 
 
+    #= Namespaces
+ 
     # List of available namespaces
     # @return [Array<RGeoServer::Namespace>]
     def get_namespaces 
@@ -164,6 +191,7 @@ module RGeoServer
     end
 
     #= WMS Stores (Web Map Services)
+
     # TODO: Implement when the stable release includes it
     # List of WMS stores.
     # @param [String] workspace  

@@ -75,11 +75,31 @@ describe "Integration test against a GeoServer instance", :integration => true d
   end
 
   context "Layers" do 
-    it "shoult list layers" do
-        @catalog.get_layers.each { |l| 
-          l.profile.should_not be_empty
-        }
+    it "should list layers" do
+      @catalog.get_layers.each { |l| 
+        l.profile.should_not be_empty
+      }
     end
+  end
+
+  context "Styles" do 
+    it "should list styles" do
+      @catalog.get_styles.each { |s| 
+        s.profile.should_not be_empty
+      }
+    end
+    
+    it "should list layers that include a style" do
+      @catalog.get_styles do |s|
+        s.layers do |l| 
+          puts s.profile.inspect
+          unless l.profile['styles'].empty?
+            l.profile['styles'].should include s.name
+          end
+        end
+      end
+    end
+
   end
 
   context "Stores" do
