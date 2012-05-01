@@ -69,7 +69,7 @@ module RGeoServer
         return to_enum(:layers).to_a unless block_given?
 
         @catalog.get_layers do |l|
-          yield l if l.profile['styles'].include? @name
+          yield l if ([l.profile['default_style']]+l.profile['alternate_styles']).include? @name
         end 
       end
 

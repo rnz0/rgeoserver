@@ -75,6 +75,20 @@ describe "Integration test against a GeoServer instance", :integration => true d
   end
 
   context "Layers" do 
+    it "should instantiate a new layer" do
+      lyr = RGeoServer::Layer.new @catalog, :name => 'layer_' + SecureRandom.hex(5)
+      lyr.new?.should == true
+    end
+
+    it "should not create a new layer directly" do
+      lyr = RGeoServer::Layer.new @catalog, :name => 'layer_' + SecureRandom.hex(5)
+      lyr.new?.should == true
+      lyr.default_style = 'rain'
+      lyr.alternate_styles = ['raster']
+      lyr.enabled = 'true'
+      expect{ lyr.save }.to raise_error 
+    end
+
     it "should list layers" do
       @catalog.get_layers.each { |l| 
         l.profile.should_not be_empty
@@ -83,6 +97,11 @@ describe "Integration test against a GeoServer instance", :integration => true d
   end
 
   context "Styles" do 
+    it "should instantiate a new style" do
+      style = RGeoServer::Style.new @catalog, :name => 'style_' + SecureRandom.hex(5)
+      style.new?.should == true
+    end
+
     it "should list styles" do
       @catalog.get_styles.each { |s| 
         s.profile.should_not be_empty
@@ -91,11 +110,9 @@ describe "Integration test against a GeoServer instance", :integration => true d
     
     it "should list layers that include a style" do
       @catalog.get_styles do |s|
-        s.layers do |l| 
-          puts s.profile.inspect
-          unless l.profile['styles'].empty?
-            l.profile['styles'].should include s.name
-          end
+        s.layers do |l|
+          lyrs = l.profile['alternate_styles'] + [l.profile['default_style']]
+          lyrs.should include s.name unless lyrs.empty?
         end
       end
     end
@@ -127,9 +144,9 @@ describe "Integration test against a GeoServer instance", :integration => true d
       end
 
       it "should not create a datastore if workspace does not exit" do
-        new_ws = RGeoServer::Workspace.new @catalog, :name => SecureRandom.hex(5)
+        new_ws = RGeoServer::Workspace.new @catalog, :name => 'workspace_' + SecureRandom.hex(5)
         obj = RGeoServer::DataStore.new @catalog, :workspace => new_ws, :name => 'test_random_store'
-        obj.new?.should raise_error 
+        obj.new? #.should raise_error 
       end
 
       it "should create a datastore under existing workspace, update and delete it right after" do

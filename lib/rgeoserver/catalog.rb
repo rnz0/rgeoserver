@@ -192,7 +192,6 @@ module RGeoServer
 
     #= WMS Stores (Web Map Services)
 
-    # TODO: Implement when the stable release includes it
     # List of WMS stores.
     # @param [String] workspace  
     # @return [Array<RGeoServer::WmsStore>]

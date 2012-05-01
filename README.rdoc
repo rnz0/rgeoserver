@@ -116,8 +116,11 @@ or set an environment variable, for example:
 
 == TODO
 - Handle default resources transparently.
-- Complete data stores and coverages functionality, handle Layers, styles and data upload.
-- Complete documentaion and test coverage. Add more flexibility for integration tests with embedded Jetty and other containers.
+- Complete data stores and coverages functionality, handle layers, styles, wmsstores and data upload.
+- Complete documentation.
+- Complete test coverage: 
+  - Add functional tests 
+  - Add more flexibility for integration tests with embedded Jetty and other containers.
 - Provide more examples:
   - Customize configuration.
   - Connect under SSL.

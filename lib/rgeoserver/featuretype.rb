@@ -2,8 +2,11 @@
 module RGeoServer
 
     class FeatureType < ResourceInfo
-  
-      define_attribute_methods [:catalog, :workspace, :data_store, :name] 
+      OBJ_ATTRIBUTES = {:catalog => "catalog", :name => "name", :workspace => "workspace", :enabled => "enabled" }
+      OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :workspace => nil, :coverage_store => nil, :name => nil, :enabled => "false" } 
+     
+      define_attribute_methods OBJ_ATTRIBUTES.keys
+      update_attribute_accessors OBJ_ATTRIBUTES
   
       @@r = Confstruct::Configuration.new(
           :route => "workspaces/%s/datastores/%s/featuretypes",
@@ -69,25 +72,10 @@ module RGeoServer
           end
 
           @name = options[:name].strip
-          @enabled = options[:enabled] || true
           @route = route
         end        
       end
 
-      def name= val
-        name_will_change! unless val == @name
-        @name = val
-      end
-
-      def workspace= val
-        workspace_will_change! unless val == @workspace
-        @workspace = val
-      end
-
-      def catalog= val
-        catalog_will_change! unless val == @catalog
-        @catalog = val
-      end
 
       def profile_xml_to_hash profile_xml
         doc = profile_xml_to_ng profile_xml

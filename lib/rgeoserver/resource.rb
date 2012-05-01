@@ -66,17 +66,24 @@ module RGeoServer
 
 
       # Modify or save the resource
-      # @param [Hash] options
+      # @param [Hash] options / query parameters
       # @return [RGeoServer::ResourceInfo] 
       def save options = {}
         @previously_changed = changes
         @changed_attributes.clear
         run_callbacks :save do
           if new?
-              @catalog.add(@route, message, create_method) 
-              clear 
+            if self.respond_to?(:create_route)
+              raise "Resource cannot be created directly" if create_route.nil?
+              route = create_route
+            else
+              route = {@route => nil}
+            end
+            @catalog.add(route, message, create_method, options) 
+            clear 
           else
-            @catalog.modify({@route => @name}, message, update_method) #unless changes.empty? 
+            route = self.respond_to?(:update_route)? update_route : {@route => @name}
+            @catalog.modify(route, message, update_method, options) #unless changes.empty? 
           end
 
           self

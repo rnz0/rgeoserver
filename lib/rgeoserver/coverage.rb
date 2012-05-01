@@ -4,7 +4,7 @@ module RGeoServer
     class Coverage < ResourceInfo
   
       OBJ_ATTRIBUTES = {:catalog => "catalog", :name => "name", :workspace => "workspace", :enabled => "enabled" }
-      OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :workspace => nil, :coverage_store => nil, :name => nil, :enabled => false } 
+      OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :workspace => nil, :coverage_store => nil, :name => nil, :enabled => "false" } 
      
       define_attribute_methods OBJ_ATTRIBUTES.keys
       update_attribute_accessors OBJ_ATTRIBUTES

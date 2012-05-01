@@ -55,8 +55,9 @@ module RGeoServer
     # @param [String] what
     # @param [String] message
     # @param [Symbol] method
-    def add what, message, method
-      request = client[url_for(what)]
+    # @param [Hash] options
+    def add what, message, method, options = {}
+      request = client[url_for(what, options)]
       request.options[:headers] ||= headers(:xml)
       begin 
         return request.send method, message
@@ -72,8 +73,9 @@ module RGeoServer
     # @param [String] what
     # @param [String] message
     # @param [Symbol] method
-    def modify what, message, method
-      request = client[url_for(what, {})]
+    # @param [Hash] options
+    def modify what, message, method, options = {}
+      request = client[url_for(what, options)]
       request.options[:headers] ||= headers(:xml) 
       $logger.debug "Modifying: \n #{message}"
       begin 
