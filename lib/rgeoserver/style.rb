@@ -3,8 +3,8 @@ module RGeoServer
 
     class Style < ResourceInfo
 
-      OBJ_ATTRIBUTES = {:catalog => 'catalog', :name => 'name', :sld_version => 'sldVersion', :filename => 'filename' }
-      OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :name => nil, :sld_version => nil, :filename => '' }
+      OBJ_ATTRIBUTES = {:catalog => 'catalog', :name => 'name', :sld_version => 'sldVersion', :filename => 'filename', :sld_doc => 'sld_doc' }
+      OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :name => nil, :sld_version => nil, :filename => '', :sld_doc => nil }
 
       define_attribute_methods OBJ_ATTRIBUTES.keys
       update_attribute_accessors OBJ_ATTRIBUTES
@@ -34,22 +34,34 @@ module RGeoServer
       def route
         @@r.route  
       end
-    
+   
+      def create_options
+        {
+          :headers => {
+            :accept => :xml,
+            :content_type=> "application/vnd.ogc.sld+xml"
+          },
+          :format => :xml,
+          :name => @name
+        }
+      end   
+      
+      def update_options
+        {
+          :headers => {
+            :accept => :xml,
+            :content_type=> "application/vnd.ogc.sld+xml"
+          },
+          :format => :sld
+        }
+      end
+ 
       def sld_namespace
         @@r.sld_namespace
       end
 
       def message
-        builder = Nokogiri::XML::Builder.new do |xml|
-          xml.layer { 
-            xml.name @name 
-            xml.sldVersion {
-              xml.version @sld_version
-            }
-            xml.filename @filename
-          }
-        end
-        return builder.doc.to_xml 
+        @sld_doc
       end
 
       # @param [RGeoServer::Catalog] catalog
@@ -67,9 +79,9 @@ module RGeoServer
       # WARNING: This will be slow and inneficient when the list of all layers is too long.
       def layers &block
         return to_enum(:layers).to_a unless block_given?
-
         @catalog.get_layers do |l|
-          yield l if ([l.profile['default_style']]+l.profile['alternate_styles']).include? @name
+          lyrs = [l.profile['default_style']]+l.profile['alternate_styles']
+          yield l if lyrs.include? @name
         end 
       end
 
@@ -79,16 +91,10 @@ module RGeoServer
           'name' => doc.at_xpath('//name').text.strip, 
           'sld_version' => doc.at_xpath('//sldVersion/version/text()').to_s,
           'filename' => doc.at_xpath('//filename/text()').to_s,
-          'sld' => begin
-            response = @catalog.search({:styles => @name}, options = {:format => 'sld'})
-  #doc.xpath('//atom:link/@href', "xmlns:atom"=>"http://www.w3.org/2005/Atom" 
-            sld_doc = Nokogiri::XML(response)
-            {
-              'sld_name' => sld_doc.at_xpath('//sld:NamedLayer/sld:UserStyle/sld:Name/text()', 'xmlns:sld' => sld_namespace).to_s,
-              'sld_title' => sld_doc.at_xpath('//sld:NamedLayer/sld:UserStyle/sld:Title/text()', 'xmlns:sld' => sld_namespace).to_s
-            }
+          'sld_doc' => begin
+            Nokogiri::XML(@catalog.search({:styles => @name}, options={:format => 'sld'})).to_xml
           rescue RestClient::ResourceNotFound
-            {}
+            nil 
           end
         }.freeze 
         h 

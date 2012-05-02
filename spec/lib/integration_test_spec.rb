@@ -76,12 +76,12 @@ describe "Integration test against a GeoServer instance", :integration => true d
 
   context "Layers" do 
     it "should instantiate a new layer" do
-      lyr = RGeoServer::Layer.new @catalog, :name => 'layer_' + SecureRandom.hex(5)
+      lyr = RGeoServer::Layer.new @catalog, :name => 'layer_rgeoserver_test'
       lyr.new?.should == true
     end
 
     it "should not create a new layer directly" do
-      lyr = RGeoServer::Layer.new @catalog, :name => 'layer_' + SecureRandom.hex(5)
+      lyr = RGeoServer::Layer.new @catalog, :name => 'layer_rgeoserver_test' 
       lyr.new?.should == true
       lyr.default_style = 'rain'
       lyr.alternate_styles = ['raster']
@@ -96,20 +96,34 @@ describe "Integration test against a GeoServer instance", :integration => true d
     end
   end
 
-  context "Styles" do 
+  context "Styles" do
+    before :all do
+      sld_dir = File.join(File.dirname(__FILE__), '/../fixtures/styles/')
+      @test_sld = Nokogiri::XML(File.new(File.join(sld_dir, 'test_style.sld')))
+      @pop_sld = Nokogiri::XML(File.new(File.join(sld_dir, 'poptest.sld')))
+    end
+ 
     it "should instantiate a new style" do
-      style = RGeoServer::Style.new @catalog, :name => 'style_' + SecureRandom.hex(5)
+      style = RGeoServer::Style.new @catalog, :name => 'style_rgeoserver_test'
       style.new?.should == true
     end
 
-    it "should list styles" do
-      @catalog.get_styles.each { |s| 
-        s.profile.should_not be_empty
-      }
+    it "should create new styles and delete them" do
+      {'granules_test_style'=> @test_sld, 'poptest_test_style'=> @pop_sld}.each_pair do |name,sld_ng| 
+        style = RGeoServer::Style.new @catalog, :name => name 
+        style.sld_doc = sld_ng.to_xml
+        style.save
+        style.sld_doc.should be_equivalent_to(sld_ng)
+        style.new?.should == false
+        style.delete :purge => true
+        style.new?.should == true
+      end
     end
     
     it "should list layers that include a style" do
-      @catalog.get_styles do |s|
+      @catalog.get_styles[1,1].each do |s|
+        break
+        s.profile.should_not be_empty
         s.layers do |l|
           lyrs = l.profile['alternate_styles'] + [l.profile['default_style']]
           lyrs.should include s.name unless lyrs.empty?
@@ -144,7 +158,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
       end
 
       it "should not create a datastore if workspace does not exit" do
-        new_ws = RGeoServer::Workspace.new @catalog, :name => 'workspace_' + SecureRandom.hex(5)
+        new_ws = RGeoServer::Workspace.new @catalog, :name => 'workspace_rgeoserver_test'
         obj = RGeoServer::DataStore.new @catalog, :workspace => new_ws, :name => 'test_random_store'
         obj.new? #.should raise_error 
       end

@@ -24,8 +24,9 @@ module RGeoServer
     # @param [OrderedHash] what
     # @param [Hash] options
     def search what, options = {}
+      h = options.delete(:headers) || headers(:xml)
       resources = client[url_for(what, options)]
-      resources.options[:headers] ||= headers(:xml)
+      resources.options[:headers] = h
       begin
         return resources.get
       rescue RestClient::InternalServerError => e
@@ -57,8 +58,9 @@ module RGeoServer
     # @param [Symbol] method
     # @param [Hash] options
     def add what, message, method, options = {}
+      h = options.delete(:headers) || headers(:xml)
       request = client[url_for(what, options)]
-      request.options[:headers] ||= headers(:xml)
+      request.options[:headers] = h
       begin 
         return request.send method, message
       rescue RestClient::InternalServerError => e
@@ -75,8 +77,9 @@ module RGeoServer
     # @param [Symbol] method
     # @param [Hash] options
     def modify what, message, method, options = {}
+      h = options.delete(:headers) || headers(:xml)
       request = client[url_for(what, options)]
-      request.options[:headers] ||= headers(:xml) 
+      request.options[:headers] = h
       $logger.debug "Modifying: \n #{message}"
       begin 
         return request.send method, message
