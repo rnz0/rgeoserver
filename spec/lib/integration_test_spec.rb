@@ -86,7 +86,8 @@ describe "Integration test against a GeoServer instance", :integration => true d
       lyr.default_style = 'rain'
       lyr.alternate_styles = ['raster']
       lyr.enabled = 'true'
-      expect{ lyr.save }.to raise_error 
+      lyr.resource = @catalog.get_coverage 'sf','sfdem', 'sfdem'
+      expect{ lyr.save }.to raise_error
     end
 
     it "should list layers" do

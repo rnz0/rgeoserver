@@ -184,10 +184,13 @@ module RGeoServer
     # @param [String] coveragestore  
     # @return [RGeoServer::CoverageStore]
     def get_coverage_store workspace, coveragestore
-      response = self.search({:workspaces => workspace, :name => coveragestore})
-      doc = Nokogiri::XML(response)
-      name = doc.at_xpath(CoverageStore.member_xpath)
-      return CoverageStore.new self, workspace, name.text if name
+      cs = CoverageStore.new self, :workspace => workspace, :name => coveragestore
+      return cs.new?? nil : cs
+    end
+
+    def get_coverage workspace, coverage_store, coverage
+      c = Coverage.new self, :workspace => workspace, :coverage_store => coverage_store, :name => coverage
+      return c.new?? nil : c    
     end
 
     #= WMS Stores (Web Map Services)
