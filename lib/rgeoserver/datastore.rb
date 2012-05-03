@@ -18,14 +18,6 @@ module RGeoServer
       @@root
     end
 
-    def self.create_method
-      :post 
-    end
-
-    def self.save_method
-      :put 
-    end
-
     def self.resource_name
       @@resource_name
     end

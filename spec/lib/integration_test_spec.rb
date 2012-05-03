@@ -5,6 +5,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
 
   before(:all) do
     @catalog = RGeoServer.catalog
+    @fixtures_dir = File.join(File.dirname(__FILE__), "/../fixtures/")
   end
 
 
@@ -99,7 +100,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
 
   context "Styles" do
     before :all do
-      sld_dir = File.join(File.dirname(__FILE__), '/../fixtures/styles/')
+      sld_dir = File.join(@fixtures_dir, 'styles')
       @test_sld = Nokogiri::XML(File.new(File.join(sld_dir, 'test_style.sld')))
       @pop_sld = Nokogiri::XML(File.new(File.join(sld_dir, 'poptest.sld')))
     end
@@ -138,6 +139,8 @@ describe "Integration test against a GeoServer instance", :integration => true d
     before :all do
       @ws = RGeoServer::Workspace.new @catalog, :name => 'test_workspace_for_stores'
       @ws.save
+      @shapefile = File.join(@fixtures_dir, 'datasets/vector/granules.shp')
+      @raster = File.join(@fixtures_dir, 'datasets/raster/test.tif')
     end
   
     after :all do
@@ -165,7 +168,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
       end
 
       it "should create a datastore under existing workspace, update and delete it right after" do
-        ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test', :connection_parameters => {"namespace"=>"http://test_workspace_for_stores", "url" => "file://tmp/geo.tif"}
+        ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test', :connection_parameters => {"namespace"=>"http://test_workspace_for_stores", "url" => "file:#{@shapefile}"}
         ds.new?.should == true
         ds.save
         ds.new?.should == false
@@ -179,6 +182,15 @@ describe "Integration test against a GeoServer instance", :integration => true d
         ds.save
         ds.profile['connectionParameters'].should == new_connection_parameters
         ds.delete
+      end
+
+      it "should create a datastore under existing workspace and add a feature type that will also create a layer" do
+        ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test', :connection_parameters => {"namespace"=>"http://test_workspace_for_stores", "url" => "file:#{@shapefile}"}
+        ds.new?.should == true
+        ds.save
+        ft = RGeoServer::FeatureType.new @catalog, :workspace => @ws, :data_store => ds, :name => 'granules'
+        ft.save
+        
       end
     end
 
@@ -202,6 +214,17 @@ describe "Integration test against a GeoServer instance", :integration => true d
         cs.save
         cs.description.should == 'new description'
         cs.new?.should == false
+        cs.delete
+      end
+      it "should create a coverage store under existing workspace and add a coverage to it. A layer must be created as a result of this operation" do
+        cs = RGeoServer::CoverageStore.new @catalog, :workspace => @ws, :name => 'test_coverage_store'
+        cs.url = "file:data_dir/sf/raster.tif"
+        cs.description = 'description'
+        cs.enabled = 'true'
+        cs.data_type = 'GeoTIFF'
+        cs.save
+        c = RGeoServer::Coverage.new @catalog, :workspace => @ws, :coverage_store => cs, :name => 'raster'
+        #c.save
       end
     end
   end

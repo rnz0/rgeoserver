@@ -57,13 +57,12 @@ module RGeoServer
       end
 
       def create_method
-        self.class.create_method
+        :post 
       end
 
       def update_method
-        self.class.update_method
+        :put 
       end
-
 
       # Modify or save the resource
       # @param [Hash] options / query parameters

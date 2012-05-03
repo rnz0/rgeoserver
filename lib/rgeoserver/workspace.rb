@@ -16,14 +16,6 @@ module RGeoServer
       @@resource_name
     end
 
-    def self.create_method 
-      :post 
-    end
-
-    def self.update_method 
-      :put 
-    end
-
     def self.root_xpath
       "//#{@@route}/#{@@resource_name}"
     end

@@ -3,8 +3,8 @@ module RGeoServer
   # A coverage is a raster based data set which originates from a coverage store.
   class Coverage < ResourceInfo
 
-    OBJ_ATTRIBUTES = {:catalog => "catalog", :name => "name", :workspace => "workspace", :enabled => "enabled" }
-    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :workspace => nil, :coverage_store => nil, :name => nil, :enabled => "false" } 
+    OBJ_ATTRIBUTES = {:catalog => "catalog", :workspace => "workspace", :coverage_store => "coverage_store", :name => "name", :title => "title" }
+    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :workspace => nil, :coverage_store => nil, :name => nil, :title => nil } 
    
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
@@ -15,14 +15,6 @@ module RGeoServer
 
     def self.root
       @@root
-    end
-
-    def self.create_method
-      :put 
-    end
-
-    def self.update_method
-      :put 
     end
 
     def self.member_xpath
@@ -37,6 +29,15 @@ module RGeoServer
       @@route % [@workspace.name , @coverage_store.name]
     end
 
+    def message
+      builder = Nokogiri::XML::Builder.new do |xml|
+        xml.coverage {
+          xml.name @name
+          xml.title @title
+        }
+      end
+      @message = builder.doc.to_xml 
+    end
 
     # @param [RGeoServer::Catalog] catalog
     # @param [Hash] options
@@ -62,7 +63,7 @@ module RGeoServer
         end
 
         @name = options[:name]
-        @type = options[:type]
+        @title = options[:title]
         @enabled = options[:enabled] || true
         @route = route
       end        
