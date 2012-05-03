@@ -9,10 +9,12 @@ module RGeoServer
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
 
-    @@r = Confstruct::Configuration.new(:route => 'styles', :resource_name => 'style', :sld_namespace => 'http://www.opengis.net/sld')
+    @@route = "styles"
+    @@resource_name = "style"
+    @@sld_namespace = "http://www.opengis.net/sld"
 
     def self.resource_name
-      @@r.resource_name
+      @@resource_name
     end
 
     def self.create_method 
@@ -24,7 +26,7 @@ module RGeoServer
     end
 
     def self.root_xpath
-      "//#{@@r.route}/#{@@r.resource_name}"
+      "//#{@@route}/#{@@resource_name}"
     end
 
     def self.member_xpath
@@ -32,8 +34,13 @@ module RGeoServer
     end
 
     def route
-      @@r.route  
+      @@route  
     end
+
+    def sld_namespace
+      @@sld_namespace
+    end
+
  
     def create_options
       {
@@ -54,10 +61,6 @@ module RGeoServer
         },
         :format => :sld
       }
-    end
-
-    def sld_namespace
-      @@r.sld_namespace
     end
 
     def message

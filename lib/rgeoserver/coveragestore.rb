@@ -8,14 +8,12 @@ module RGeoServer
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
 
-    @@r = Confstruct::Configuration.new(
-        :route => "workspaces/%s/coveragestores",
-        :root => "coverageStores",
-        :resource_name => "coverageStore"
-      )
+    @@route = "workspaces/%s/coveragestores"
+    @@root = "coverageStores"
+    @@resource_name = "coverageStore"
 
     def self.root
-      @@r.root
+      @@root
     end
 
     def self.create_method
@@ -27,7 +25,7 @@ module RGeoServer
     end
 
     def self.resource_name
-      @@r.resource_name
+      @@resource_name
     end
 
     def self.root_xpath
@@ -39,7 +37,7 @@ module RGeoServer
     end
 
     def route
-      @@r.route % @workspace.name 
+      @@route % @workspace.name 
     end
 
     def message

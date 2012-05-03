@@ -9,10 +9,11 @@ module RGeoServer
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
 
-    @@r = Confstruct::Configuration.new(:route => 'layers', :resource_name => 'layer')
+    @@route = "layers" 
+    @@resource_name = "layer"
 
     def self.resource_name
-      @@r.resource_name
+      @@resource_name
     end
 
     def self.create_method 
@@ -24,7 +25,7 @@ module RGeoServer
     end
 
     def self.root_xpath
-      "//#{@@r.route}/#{@@r.resource_name}"
+      "//#{@@route}/#{@@resource_name}"
     end
 
     def self.member_xpath
@@ -32,7 +33,7 @@ module RGeoServer
     end
 
     def route
-      @@r.route  
+      @@route  
     end
 
     # No direct layer creation

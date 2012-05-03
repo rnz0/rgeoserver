@@ -10,14 +10,12 @@ module RGeoServer
 
     attr_accessor :message
 
-    @@r = Confstruct::Configuration.new(
-        :route => "workspaces/%s/datastores",
-        :root => "dataStores",
-        :resource_name => "dataStore"
-      )
+    @@route = "workspaces/%s/datastores"
+    @@root = "dataStores"
+    @@resource_name = "dataStore"
 
     def self.root
-      @@r.root
+      @@root
     end
 
     def self.create_method
@@ -29,7 +27,7 @@ module RGeoServer
     end
 
     def self.resource_name
-      @@r.resource_name
+      @@resource_name
     end
 
     def self.root_xpath
@@ -41,7 +39,7 @@ module RGeoServer
     end
 
     def route
-      @@r.route % @workspace.name
+      @@route % @workspace.name
     end
 
     def update_route

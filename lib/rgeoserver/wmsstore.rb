@@ -5,14 +5,12 @@ module RGeoServer
   
       define_attribute_methods [:catalog, :workspace, :name] 
   
-      @@r = Confstruct::Configuration.new(
-          :route => "workspaces/%s/wmsstores",
-          :root => "wmsStores",
-          :resource_name => "wmsStore"
-        )
+      @@route = "workspaces/%s/wmsstores"
+      @@root = "wmsStores"
+      @@resource_name = "wmsStore"
 
       def self.root
-        @@r.root
+        @@root
       end
 
       def self.create_method
@@ -24,7 +22,7 @@ module RGeoServer
       end
 
       def self.resource_name
-        @@r.resource_name
+        @@resource_name
       end
  
       def self.root_xpath
@@ -36,7 +34,7 @@ module RGeoServer
       end
 
       def route
-        @@r.route % @workspace.name 
+        @@route % @workspace.name 
       end
 
       def xml options = nil
