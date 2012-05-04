@@ -251,5 +251,16 @@ describe "Integration test against a GeoServer instance", :integration => true d
         #c.save
       end
     end
+  
+    context "Catalog operations" do
+      it "should reload the catalog"  do
+        @catalog.reload
+      end
+  
+      it "should reset the catalog" do
+        @catalog.reset
+      end
+  
+    end
   end
 end

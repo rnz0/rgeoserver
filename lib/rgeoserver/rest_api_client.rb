@@ -36,20 +36,22 @@ module RGeoServer
       end
     end
 
-    # Fetch an arbitrary URL within the catalog
+    # Do an action on an arbitrary URL within the catalog passing no data
+    # Default method is GET
     # @param [String] url
-    def fetch_url url
+    # @param [String] method
+    def do_url url, method = :get
       url.slice! client.url
       fetcher = client[url]
       fetcher.options[:headers] ||= headers(:xml)
-      begin  
-        return fetcher.get
+      begin
+        return fetcher.get if method == :get 
+        fetcher.send method, nil
       rescue RestClient::InternalServerError => e
         $logger.error e.response
         $logger.flush if $logger.respond_to? :flush
         raise GeoServerInvalidRequest, "Error fetching URL: #{url}. See $logger for details"
       end
-
     end
 
     # Add resource to the catalog
