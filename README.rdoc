@@ -1,4 +1,4 @@
-# rgeoserver [![Dependency Status](https://gemnasium.com/rnz0/rgeoserver.png)](https://gemnasium.com/rnz0/rgeoserver)
+{<img src="https://gemnasium.com/rnz0/rgeoserver.png" alt="Dependency Status" />}[https://gemnasium.com/rnz0/rgeoserver]
 
 == RGeoServer
 
