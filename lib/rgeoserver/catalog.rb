@@ -33,6 +33,17 @@ module RGeoServer
     end
 
     #== Resources
+  
+    # Shortcut to ResourceInfo.list to this catalog. See ResourceInfo#list
+    # @param [RGeoServer::ResourceInfo.class] klass
+    # @param [RGeoServer::Catalog] catalog
+    # @param [Array<String>] names
+    # @param [Hash] options
+    # @param [bool] check_remote if already exists in catalog and cache it
+    # @yield [RGeoServer::ResourceInfo] 
+    def list klass, names, options, check_remote = false,  &block
+      ResourceInfo.list klass, self, names, options, check_remote, &block
+    end
 
     #= Workspaces
 
@@ -42,7 +53,7 @@ module RGeoServer
       response = self.search :workspaces => nil 
       doc = Nokogiri::XML(response)
       workspaces = doc.xpath(Workspace.root_xpath).collect{|w| w.text.to_s }
-      ResourceInfo.list Workspace, self, workspaces, {}, &block
+      list Workspace, workspaces, {}, &block
     end
    
     # @param [String] workspace name
@@ -80,7 +91,7 @@ module RGeoServer
       response = self.search :layers => nil 
       doc = Nokogiri::XML(response)
       layers = doc.xpath(Layer.root_xpath).collect{|l| l.text.to_s }
-      ResourceInfo.list Layer, self, layers, {}, &block
+      list Layer, layers, {}, &block
     end
    
     # @param [String] layer name
@@ -100,7 +111,7 @@ module RGeoServer
       response = self.search :styles => nil 
       doc = Nokogiri::XML(response)
       styles = doc.xpath(Style.root_xpath).collect{|l| l.text.to_s }
-      ResourceInfo.list Style, self, styles, {}, &block
+      list Style, styles, {}, &block
     end
    
     # @param [String] style name
