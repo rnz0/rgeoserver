@@ -110,7 +110,7 @@ module RGeoServer
       end
     end
 
-    # TODO: Simplify if necessary with "/layers/<l>/styles[.<format>]", as speficied in the API
+    # TODO: Simplify if necessary with "/layers/<l>/styles[.<format>]", as specified in the API
     def get_default_style &block
       self.class.list Style, @catalog, @default_style, {:layer => self}, check_remote = false, &block
     end

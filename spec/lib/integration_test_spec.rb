@@ -98,6 +98,30 @@ describe "Integration test against a GeoServer instance", :integration => true d
     end
   end
 
+  context "LayerGroups" do
+    it "should instantiate a new group layer" do
+      lyrs = ['a','b','c'].collect{|l| RGeoServer::Layer.new @catalog, :name => l}
+      stys = ['s1','s2','s3','s4'].collect{|s| RGeoServer::Style.new @catalog, :name => s}
+      g = RGeoServer::LayerGroup.new @catalog, :name => 'test_group_layer'
+      g.layers = lyrs
+      g.styles = stys 
+      g.new?.should == true
+    end
+
+    it "should create a new group layer from existing layers and styles and delete it right after" do
+      g = RGeoServer::LayerGroup.new @catalog, :name => 'test_group_layer'
+      g.layers = @catalog.get_layers[1,2]
+      g.styles = @catalog.get_styles[1,2]
+      g.new?.should == true
+      g.save
+      # Bounds metadata should come back aggregated from the server
+      g.bounds['maxx'].should_not == ''
+      g.delete
+      g.new?.should == true
+    end
+
+  end
+
   context "Styles" do
     before :all do
       sld_dir = File.join(@fixtures_dir, 'styles')
@@ -202,7 +226,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
       end
       it "should create a coverage store under existing workspace, update and delete it right after" do
         cs = RGeoServer::CoverageStore.new @catalog, :workspace => @ws, :name => 'test_coverage_store'
-        cs.url = "file:data_dir/sf/raster.tif"
+        cs.url = "file://#{@raster}"
         cs.description = 'description'
         cs.enabled = 'true'
         cs.data_type = 'GeoTIFF'
@@ -214,16 +238,16 @@ describe "Integration test against a GeoServer instance", :integration => true d
         cs.save
         cs.description.should == 'new description'
         cs.new?.should == false
-        cs.delete
       end
       it "should create a coverage store under existing workspace and add a coverage to it. A layer must be created as a result of this operation" do
-        cs = RGeoServer::CoverageStore.new @catalog, :workspace => @ws, :name => 'test_coverage_store'
-        cs.url = "file:data_dir/sf/raster.tif"
+        cs = RGeoServer::CoverageStore.new @catalog, :workspace => @ws, :name => 'raster'
+        cs.url = "file://#{@raster}"
         cs.description = 'description'
         cs.enabled = 'true'
         cs.data_type = 'GeoTIFF'
         cs.save
         c = RGeoServer::Coverage.new @catalog, :workspace => @ws, :coverage_store => cs, :name => 'raster'
+        c.title = 'Test Raster Layer'
         #c.save
       end
     end

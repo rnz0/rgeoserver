@@ -16,6 +16,7 @@ module RGeoServer
   autoload :WmsStore, "rgeoserver/wmsstore"
   autoload :Style, "rgeoserver/style"
   autoload :Layer, "rgeoserver/layer"
+  autoload :LayerGroup, "rgeoserver/layergroup"
 
   require 'restclient'
   require 'nokogiri'
