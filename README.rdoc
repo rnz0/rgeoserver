@@ -1,3 +1,5 @@
+# rgeoserver [![Dependency Status](https://gemnasium.com/rnz0/rgeoserver.png)](https://gemnasium.com/rnz0/rgeoserver)
+
 == RGeoServer
 
 RGeoServer is a Ruby client for the GeoServer RESTful administrative interface. 
@@ -62,7 +64,7 @@ A full sample script creating coverage stores in a small cluster:
   (1..7).each do |cat_id|
     cat = RGeoServer::Catalog.new :user=>'admin', :url => "http://geoserver-app#{cat_id}/rest", :password => "osgeo!"
     ws = cat.get_workspace('cite')
-    RGeoServer::ResourceInfo.list(RGeoServer::CoverageStore, cat, layers.keys, :workspace => ws) do |cs|
+    cat.list(RGeoServer::CoverageStore, layers.keys, :workspace => ws) do |cs|
       cs.description = layers[cs.name]['description']
       cs.url = layers[cs.name]['url']
       cs.data_type = layers[cs.name]['type']
@@ -116,11 +118,12 @@ or set an environment variable, for example:
 
 == TODO
 - Handle default resources transparently.
-- Complete data stores and coverages functionality, handle layers, styles, wmsstores and data upload.
+- Complete data stores and coverages functionality and data upload.
 - Complete documentation.
 - Complete test coverage: 
   - Add functional tests 
   - Add more flexibility for integration tests with embedded Jetty and other containers.
+  - Hook to CI service.
 - Provide more examples:
   - Customize configuration.
   - Connect under SSL.
@@ -138,7 +141,7 @@ or set an environment variable, for example:
 
 
 == Acknowledgements
-Inspired on the Rubydora and RSolr gems. Followed somewhat closely to {gsconfig.py}[https://github.com/dwins/gsconfig.py] 
+Inspired on the {Rubydora}[https://github.com/cbeer/rubydora] and RSolr gems. Followed somewhat closely to {gsconfig.py}[https://github.com/dwins/gsconfig.py] 
 
 == Contributors
 
