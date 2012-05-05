@@ -71,7 +71,15 @@ module RGeoServer
         @previously_changed = changes
         @changed_attributes.clear
         run_callbacks :save do
-          if new?
+          unless @previously_changed[:name].nil?
+            old_name, new_name = @previously_changed[:name]
+            name_route = old_name if old_name != new_name
+            update = true
+          else
+            name_route = name
+            update = false
+          end
+          if !update && new?
             if self.respond_to?(:create_route)
               raise "Resource cannot be created directly" if create_route.nil?
               route = create_route
@@ -84,7 +92,7 @@ module RGeoServer
             clear 
           else
             options = update_options.merge(options) if self.respond_to?(:update_options)
-            route = self.respond_to?(:update_route)? update_route : {@route => @name}
+            route = self.respond_to?(:update_route)? update_route : {@route => name_route}
             @catalog.modify(route, message, update_method, options) #unless changes.empty? 
           end
 

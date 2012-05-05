@@ -8,6 +8,7 @@ module RGeoServer
   autoload :RestApiClient, "rgeoserver/rest_api_client"
   autoload :GeoServerUrlHelpers, "rgeoserver/geoserver_url_helpers"
   autoload :ResourceInfo, "rgeoserver/resource"
+  autoload :Namespace, "rgeoserver/namespace"
   autoload :Workspace, "rgeoserver/workspace"
   autoload :FeatureType, "rgeoserver/featuretype"
   autoload :Coverage, "rgeoserver/coverage"

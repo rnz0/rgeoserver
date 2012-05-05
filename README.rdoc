@@ -119,11 +119,12 @@ or set an environment variable, for example:
 == TODO
 - Handle default resources transparently.
 - Complete data stores and coverages functionality and data upload.
+- Complete updating data in objects. On failure, objects should roll back.
 - Complete documentation.
 - Complete test coverage: 
-  - Add functional tests 
+  - Add functional tests and hook to CI service (most likely travis-ci). 
   - Add more flexibility for integration tests with embedded Jetty and other containers.
-  - Hook to CI service.
+  - Add ability to perform integration tests in a CI server.
 - Provide more examples:
   - Customize configuration.
   - Connect under SSL.

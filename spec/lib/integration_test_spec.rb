@@ -8,6 +8,30 @@ describe "Integration test against a GeoServer instance", :integration => true d
     @fixtures_dir = File.join(File.dirname(__FILE__), "/../fixtures/")
   end
 
+  context "Namespaces" do 
+    it "should instantiate a namespace resource" do
+      obj = RGeoServer::Namespace.new @catalog, :name => 'test_ns'
+      obj.new?.should == true
+    end  
+
+    it "should create a new namespace, update  and delete it right after" do
+      obj = RGeoServer::Namespace.new @catalog, :name => 'test_ns', :uri => 'http://localhost'
+      obj.new?.should == true
+      obj.save
+      obj.new?.should == false
+      obj.uri = 'http://example.com'
+      obj.save
+      obj.uri.should_not == 'http://localhost'
+      ws = RGeoServer::Workspace.new @catalog, :name => 'test_ns'
+      ws.delete :recurse => true unless ws.new?
+      obj = RGeoServer::Namespace.new @catalog, :name => 'test_ns', :uri => 'http://localhost'
+      obj.new?.should == true
+    end  
+
+    it "should be in correspondence with workspaces" do
+      pending "Make sure this also works on update and delete"
+    end
+  end
 
   context "Workspaces" do 
     it "should list workspaces" do
