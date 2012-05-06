@@ -120,17 +120,44 @@ describe "Integration test against a GeoServer instance", :integration => true d
         l.profile.should_not be_empty
       }
     end
-    it "should truncate an existing layer's cache" do 
+    it "should issue seed on an existing layer's cache" do 
+      pending "This certainly passes. We are skipping it since it is a CPU intense operation"
       lyr = RGeoServer::Layer.new @catalog, :name => 'Arc_Sample'
       options = {
         :srs => {:number => 4326 },
         :zoomStart => 1,
         :zoomStop => 12,
-        :format => "image/png",
+        :format => 'image/png',
         :threadCount => 1
+      }
+      lyr.seed :issue, options 
+    end
+
+    it "should truncate an existing layer's cache" do 
+      lyr = RGeoServer::Layer.new @catalog, :name => 'states'
+      options = {
+        #:gridSetId => 'EPSG:2163', # this was not found in sample data
+        :srs => {:number => 4326 },
+        :zoomStart => 0,
+        :zoomStop => 2,
+        :format => 'image/png',
+        :threadCount => 1,
+        :bounds => {
+          :coords => [
+            -2495667.977678598,
+            -2223677.196231552,
+            3291070.6104286816,
+            959189.3312465074
+          ]
+        },  
+        :parameters => {
+          :STYLES => 'pophatch',
+          :CQL_FILTER => 'TOTPOP > 10000'
+        }
       }
       lyr.seed :truncate, options  
     end
+
   end
 
   context "LayerGroups" do

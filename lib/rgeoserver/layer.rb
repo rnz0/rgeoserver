@@ -155,6 +155,17 @@ module RGeoServer
     #= GeoWebCache Operations for this layer
     # See http://geowebcache.org/docs/current/rest/seed.html
     # See RGeoServer::Catalog.seed_terminate for stopping pending and/or running tasks for any layer
+    #
+    # Example:
+    #  > lyr = RGeoServer::Layer.new catalog, :name => 'Arc_Sample'
+    #  > options = {
+    #    :srs => {:number => 4326 },
+    #    :zoomStart => 1,
+    #    :zoomStop => 12,
+    #    :format => 'image/png',
+    #    :threadCount => 1
+    #  }
+    #  > lyr.seed :issue, options
 
     # @param[String] operation  
     # @option operation[Symbol] :issue seed
@@ -182,7 +193,7 @@ module RGeoServer
 
           xml.srs {
             xml.number options[:srs][:number]
-          } unless options[:srs].nil? && options[:srs].is_a?(Hash)
+          } unless options[:srs].nil? #&& options[:srs].is_a?(Hash)
 
           xml.bounds {
             xml.coords {
