@@ -10,10 +10,23 @@ module RGeoServer
     include RGeoServer::GeoServerUrlHelpers
     include ActiveSupport::Benchmarkable
 
-    def client config = {}
-      c = self.config.merge(config)
-      @client ||= RestClient::Resource.new(c[:url], :user => c[:user], :password => c[:password], :headers => c[:headers])
+    # Instantiates a rest client with passed configuration
+    # @param [Hash] c configuration 
+    # return <RestClient::Resource>
+    def rest_client c    
+      RestClient::Resource.new(c[:url], :user => c[:user], :password => c[:password], :headers => c[:headers])
     end
+
+    def client config = {}
+      @client ||= rest_client(self.config.merge(config))
+    end
+
+    def gwc_client config = {}
+      c = self.config.merge(config)
+      c[:url] = c[:geowebcache_url]
+      @gwc_client ||= rest_client(c)
+    end
+
 
     def headers format
       sym = :xml || format.to_sym
@@ -36,23 +49,25 @@ module RGeoServer
       end
     end
 
-    # Do an action on an arbitrary URL within the catalog passing no data
-    # Default method is GET
-    # @param [String] url
-    # @param [String] method
-    def do_url url, method = :get
-      url.slice! client.url
-      fetcher = client[url]
-      fetcher.options[:headers] ||= headers(:xml)
-      begin
-        return fetcher.get if method == :get 
-        fetcher.send method, nil
-      rescue RestClient::InternalServerError => e
-        $logger.error e.response
-        $logger.flush if $logger.respond_to? :flush
-        raise GeoServerInvalidRequest, "Error fetching URL: #{url}. See $logger for details"
-      end
-    end
+    # Do an action on an arbitrary URL path within the catalog 
+    # Default method is GET 
+    # @param [String] sub_url 
+    # @param [String] method 
+    # @param [String] data payload 
+    # @param [Hash] options for request 
+    def do_url sub_url, method = :get, data = nil, options = {}, client = client
+      sub_url.slice! client.url
+      fetcher = client[sub_url] 
+      fetcher.options.merge(options)
+      begin 
+        return fetcher.get if method == :get  
+        fetcher.send method, data 
+      rescue RestClient::InternalServerError => e 
+        $logger.error e.response 
+        $logger.flush if $logger.respond_to? :flush 
+        raise GeoServerInvalidRequest, "Error fetching URL: #{url}. See $logger for details" 
+      end 
+    end 
 
     # Add resource to the catalog
     # @param [String] what

@@ -6,7 +6,6 @@ module RGeoServer
 
   class Catalog
     include RGeoServer::RestApiClient
-    include ActiveSupport::Benchmarkable
     
     attr_reader :config
 
@@ -20,11 +19,6 @@ module RGeoServer
 
     def to_s
       "Catalog: #{@config[:url]}"
-    end
-
-    def client config = {}
-      c = self.config.merge(config)
-      @client ||= RestClient::Resource.new(c[:url], :user => c[:user], :password => c[:password], :headers => c[:headers])
     end
 
     def headers format
@@ -229,13 +223,13 @@ module RGeoServer
     #= Configuration reloading
     # Reloads the catalog and configuration from disk. This operation is used to reload GeoServer in cases where an external tool has modified the on disk configuration. This operation will also force GeoServer to drop any internal caches and reconnect to all data stores.
     def reload
-      do_url 'reload', method = :put  
+      do_url 'reload', :put  
     end
 
     #= Resource reset
     # Resets all store/raster/schema caches and starts fresh. This operation is used to force GeoServer to drop all caches and stores and reconnect fresh to each of them first time they are needed by a request. This is useful in case the stores themselves cache some information about the data structures they manage that changed in the meantime.
     def reset
-      do_url 'reset', method = :put
+      do_url 'reset', :put
     end  
   
   end

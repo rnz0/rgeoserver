@@ -55,6 +55,12 @@ module RGeoServer
       def to_s
         "#{self.class.name}: #{name}"
       end
+  
+      # Return full name of resource with namespace prefix
+      def resource_name
+        return "#{workspace.name}:#{name}" if self.respond_to?(:workspace)
+        raise "Workspace is not defined for this resource"
+      end
 
       def create_method
         :post 

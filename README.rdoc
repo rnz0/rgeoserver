@@ -125,6 +125,7 @@ or set an environment variable, for example:
   - Add functional tests and hook to CI service (most likely travis-ci). 
   - Add more flexibility for integration tests with embedded Jetty and other containers.
   - Add ability to perform integration tests in a CI server.
+- Add GeoWebCache REST API operations for seeding and truncating layers.
 - Provide more examples:
   - Customize configuration.
   - Connect under SSL.

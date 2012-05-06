@@ -148,5 +148,68 @@ module RGeoServer
       h  
     end
 
+    def workspace 
+      resource.workspace
+    end
+
+    #= GeoWebCache Operations for this layer
+    # See http://geowebcache.org/docs/current/rest/seed.html
+    # See RGeoServer::Catalog.seed_terminate for stopping pending and/or running tasks for any layer
+
+    # @param[String] operation  
+    # @option operation[Symbol] :issue seed
+    # @option operation[Symbol] :truncate seed
+    # @option operation[Symbol] :status of the seeding thread
+    # @param[Hash] options for seed message. Read the documentation
+    def seed operation, options
+      op = operation.to_sym
+      sub_path = "seed/#{resource_name}.xml"
+      case op
+      when :issue
+        @catalog.do_url sub_path, :post, build_seed_request(:seed, options), {},  @catalog.gwc_client
+      when :truncate
+        @catalog.do_url sub_path, :post, build_seed_request(:truncate, options), {}, @catalog.gwc_client
+      when :status
+        raise NotImplementedError
+      end
+    end
+
+    # @param[Hash] options for seed message
+    def build_seed_request operation, options
+      builder = Nokogiri::XML::Builder.new do |xml|
+        xml.seedRequest { 
+          xml.name resource_name
+
+          xml.srs {
+            xml.number options[:srs][:number]
+          } unless options[:srs].nil? && options[:srs].is_a?(Hash)
+
+          xml.bounds {
+            xml.coords {
+              options[:bounds][:coords].each { |dbl| 
+                xml.double dbl
+              } 
+            }
+          } unless options[:bounds].nil?
+
+          xml.type_ operation
+
+          [:gridSetId, :zoomStart, :zoomStop, :format, :threadCount].each { |p|
+            eval "xml.#{p.to_s} options[p]" unless options[p].nil?
+          }
+
+          xml.parameters {
+            options[:parameters].each_pair { |k,v| 
+              xml.entry {
+                xml.string k.upcase
+                xml.string v
+              }
+            }
+          } if options[:parameters].is_a?(Hash)
+        }
+      end
+      return builder.doc.to_xml
+    end
   end
+
 end 

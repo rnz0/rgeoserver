@@ -120,6 +120,17 @@ describe "Integration test against a GeoServer instance", :integration => true d
         l.profile.should_not be_empty
       }
     end
+    it "should truncate an existing layer's cache" do 
+      lyr = RGeoServer::Layer.new @catalog, :name => 'Arc_Sample'
+      options = {
+        :srs => {:number => 4326 },
+        :zoomStart => 1,
+        :zoomStop => 12,
+        :format => "image/png",
+        :threadCount => 1
+      }
+      lyr.seed :truncate, options  
+    end
   end
 
   context "LayerGroups" do
