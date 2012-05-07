@@ -89,7 +89,7 @@ To enter into an irb console with all classess loaded:
   $ rake console
 
 == Logging
-For now we use {RestClient's}[https://github.com/adamwiggins/rest-client] base logger. It can be enabled by setting:
+For now we use {RestClient's}[https://github.com/archiloque/rest-client] base logger. It can be enabled by setting:
 
   RestClient.log = '/tmp/restclient.log'
 
@@ -152,4 +152,4 @@ Inspired on the {Rubydora}[https://github.com/cbeer/rubydora] and RSolr gems. Fo
 
 Copyright (c) 2011 Renzo Sanchez-Silva <renzo@stanford.edu>.
 
-Licensed under the [MIT License](http://www.opensource.org/licenses/MIT).
+Licensed under the {MIT License}[http://www.opensource.org/licenses/MIT].
