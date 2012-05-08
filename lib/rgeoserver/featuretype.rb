@@ -2,8 +2,8 @@
 module RGeoServer
   # A feature type is a vector based spatial resource or data set that originates from a data store. In some cases, like Shapefile, a feature type has a one-to-one relationship with its data store. In other cases, like PostGIS, the relationship of feature type to data store is many-to-one, with each feature type corresponding to a table in the database.
   class FeatureType < ResourceInfo
-    OBJ_ATTRIBUTES = {:catalog => "catalog", :name => "name", :workspace => "workspace", :enabled => "enabled" }
-    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :workspace => nil, :coverage_store => nil, :name => nil, :enabled => "false" } 
+    OBJ_ATTRIBUTES = {:catalog => "catalog", :name => "name", :workspace => "workspace", :enabled => "enabled", :metadata_links => "metadataLinks", :title => "title", :abstract => "abstract" }
+    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :workspace => nil, :coverage_store => nil, :name => nil, :enabled => "false", :metadata_links => [], :title => nil, :abtract => nil } 
    
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
@@ -36,6 +36,22 @@ module RGeoServer
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.featureType {
           xml.name @name
+          unless new?
+            xml.title @title
+            xml.abstract @abtract if abstract_changed?
+            xml.store(:class => 'featureType') {
+              xml.name @data_store.name
+            } 
+            xml.metadataLinks {
+              @metadata_links.each{ |m|
+                xml.metadataLink {
+                  xml.type_ m['type']
+                  xml.metadataType m['metadataType']
+                  xml.content m['content']
+                }
+              }
+            } if metadata_links_changed?
+          end
         }
       end
       @message = builder.doc.to_xml 
@@ -75,8 +91,17 @@ module RGeoServer
       doc = profile_xml_to_ng profile_xml
       h = {
         "name" => doc.at_xpath('//name').text.strip, 
+        "title" => doc.at_xpath('//title').to_s,
+        "abstract" => doc.at_xpath('//abstract').to_s, 
         "workspace" => @workspace.name, 
-        "nativeName" => doc.at_xpath('//nativeName').to_s
+        "nativeName" => doc.at_xpath('//nativeName').to_s,
+        "metadataLinks" => doc.xpath('//metadataLinks/metadataLink').collect{ |m| 
+          { 
+            'type' => m.at_xpath('//type/text()').to_s, 
+            'metadataType' => m.at_xpath('//metadataType/text()').to_s,
+            'content' => m.at_xpath('//content').text.strip
+          } 
+        }
       }.freeze  
       h  
     end

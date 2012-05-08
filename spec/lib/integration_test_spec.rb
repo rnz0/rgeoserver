@@ -5,9 +5,10 @@ describe "Integration test against a GeoServer instance", :integration => true d
 
   before(:all) do
     @catalog = RGeoServer.catalog
-    @fixtures_dir = File.join(File.dirname(__FILE__), "/../fixtures/")
+    @fixtures_dir = File.expand_path File.join(File.dirname(__FILE__), "/../fixtures/")
   end
-
+  
+  
   context "Namespaces" do 
     it "should instantiate a namespace resource" do
       obj = RGeoServer::Namespace.new @catalog, :name => 'test_ns'
@@ -225,12 +226,12 @@ describe "Integration test against a GeoServer instance", :integration => true d
     before :all do
       @ws = RGeoServer::Workspace.new @catalog, :name => 'test_workspace_for_stores'
       @ws.save
-      @shapefile = File.join(@fixtures_dir, 'datasets/vector/granules.shp')
-      @raster = File.join(@fixtures_dir, 'datasets/raster/test.tif')
+      @shapefile = File.expand_path File.join(@fixtures_dir, 'datasets/vector/granules.shp')
+      @raster = File.expand_path File.join(@fixtures_dir, 'datasets/raster/test.tif')
     end
   
     after :all do
-      @ws.delete :recurse => true
+      @ws.delete :recurse => true 
     end
 
     context "DataStores" do
@@ -254,7 +255,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
       end
 
       it "should create a datastore under existing workspace, update and delete it right after" do
-        ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test', :connection_parameters => {"namespace"=>"http://test_workspace_for_stores", "url" => "file:#{@shapefile}"}
+        ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile', :connection_parameters => {"namespace"=> "http://test_workspace_for_stores", "url" => "file://#{@shapefile}"}
         ds.new?.should == true
         ds.save
         ds.new?.should == false
@@ -267,16 +268,17 @@ describe "Integration test against a GeoServer instance", :integration => true d
         ds.changed?.should == true
         ds.save
         ds.profile['connectionParameters'].should == new_connection_parameters
-        ds.delete
       end
 
       it "should create a datastore under existing workspace and add a feature type that will also create a layer" do
-        ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test', :connection_parameters => {"namespace"=>"http://test_workspace_for_stores", "url" => "file:#{@shapefile}"}
+        ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile2', :connection_parameters => {"url" => "file://#{@shapefile}", "namespace" => "http://test_workspace_for_stores"}
         ds.new?.should == true
         ds.save
         ft = RGeoServer::FeatureType.new @catalog, :workspace => @ws, :data_store => ds, :name => 'granules'
         ft.save
-        
+        #ft.metadata_links = [{"type"=>"text/plain", "metadataType"=>"FGDC", "content"=>"http://example.com/geonetwork/srv/en/fgdc.xml?id=2"}]
+        #ft.save
+        #ft.metadata_links.first["metadataType"].should == "FGDC"
       end
     end
 
@@ -300,6 +302,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
         cs.save
         cs.description.should == 'new description'
         cs.new?.should == false
+        cs.delete
       end
       it "should create a coverage store under existing workspace and add a coverage to it. A layer must be created as a result of this operation" do
         cs = RGeoServer::CoverageStore.new @catalog, :workspace => @ws, :name => 'raster'
@@ -308,9 +311,12 @@ describe "Integration test against a GeoServer instance", :integration => true d
         cs.enabled = 'true'
         cs.data_type = 'GeoTIFF'
         cs.save
-        c = RGeoServer::Coverage.new @catalog, :workspace => @ws, :coverage_store => cs, :name => 'raster'
+        c = RGeoServer::Coverage.new @catalog, :workspace => @ws, :coverage_store => cs, :name => 'raster_coverage'
         c.title = 'Test Raster Layer'
+        c.save
+        #c.metadata_links = [{"type"=>"text/plain", "metadataType"=>"FGDC", "content"=>"http://example.com/geonetwork/srv/en/fgdc.xml?id=1090"}]
         #c.save
+        #c.metadata_links.first["metadataType"].should == "FGDC"
       end
     end
   
