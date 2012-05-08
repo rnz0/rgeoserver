@@ -91,10 +91,10 @@ module RGeoServer
       doc = profile_xml_to_ng profile_xml
       h = {
         "name" => doc.at_xpath('//name').text.strip, 
-        "title" => doc.at_xpath('//title').to_s,
-        "abstract" => doc.at_xpath('//abstract').to_s, 
+        "title" => doc.at_xpath('//title/text()').to_s,
+        "abstract" => doc.at_xpath('//abstract/text()').to_s, 
         "workspace" => @workspace.name, 
-        "nativeName" => doc.at_xpath('//nativeName').to_s,
+        "nativeName" => doc.at_xpath('//nativeName/text()').to_s,
         "metadataLinks" => doc.xpath('//metadataLinks/metadataLink').collect{ |m| 
           { 
             'type' => m.at_xpath('//type/text()').to_s, 
