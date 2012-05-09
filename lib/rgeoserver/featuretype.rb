@@ -95,12 +95,36 @@ module RGeoServer
         "abstract" => doc.at_xpath('//abstract/text()').to_s, 
         "workspace" => @workspace.name, 
         "nativeName" => doc.at_xpath('//nativeName/text()').to_s,
+        "srs" => doc.at_xpath('//srs/text()').to_s,
+        "nativeBoundingBox" => { 
+          'minx' => doc.at_xpath('//nativeBoundingBox/minx/text()').to_s,
+          'miny' => doc.at_xpath('//nativeBoundingBox/miny/text()').to_s,
+          'maxx' => doc.at_xpath('//nativeBoundingBox/maxx/text()').to_s,
+          'maxy' => doc.at_xpath('//nativeBoundingBox/maxy/text()').to_s,
+          'crs' => doc.at_xpath('//nativeBoundingBox/crs/text()').to_s
+        },
+        "latLonBoundingBox" => { 
+          'minx' => doc.at_xpath('//latLonBoundingBox/minx/text()').to_s,
+          'miny' => doc.at_xpath('//latLonBoundingBox/miny/text()').to_s,
+          'maxx' => doc.at_xpath('//latLonBoundingBox/maxx/text()').to_s,
+          'maxy' => doc.at_xpath('//latLonBoundingBox/maxy/text()').to_s,
+          'crs' => doc.at_xpath('//latLonBoundingBox/crs/text()').to_s
+        },
         "metadataLinks" => doc.xpath('//metadataLinks/metadataLink').collect{ |m| 
           { 
             'type' => m.at_xpath('//type/text()').to_s, 
             'metadataType' => m.at_xpath('//metadataType/text()').to_s,
             'content' => m.at_xpath('//content').text.strip
           } 
+        },
+        "attributes" => doc.xpath('//attributes/attribute').collect{ |a| 
+          {
+            'name' => a.at_xpath('//name/text()').to_s,
+            'minOccurs' => a.at_xpath('//minOccurs/text()').to_s,
+            'maxOccurs' => a.at_xpath('//maxOccurs/text()').to_s,
+            'nillable' => a.at_xpath('//nillable/text()').to_s,
+            'binding' => a.at_xpath('//binding/text()').to_s
+          }
         }
       }.freeze  
       h  

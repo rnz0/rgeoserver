@@ -89,7 +89,23 @@ module RGeoServer
         "workspace" => @workspace.name,
         "name" => doc.at_xpath('//name').text.strip,
         "nativeName" => doc.at_xpath('//nativeName/text()').to_s,
+        "nativeCRS" => doc.at_xpath('//nativeCRS/text()').to_s,
         "title" => doc.at_xpath('//title/text()').to_s,
+        "srs" => doc.at_xpath('//srs/text()').to_s,
+        "nativeBoundingBox" => { 
+          'minx' => doc.at_xpath('//nativeBoundingBox/minx/text()').to_s,
+          'miny' => doc.at_xpath('//nativeBoundingBox/miny/text()').to_s,
+          'maxx' => doc.at_xpath('//nativeBoundingBox/maxx/text()').to_s,
+          'maxy' => doc.at_xpath('//nativeBoundingBox/maxy/text()').to_s,
+          'crs' => doc.at_xpath('//nativeBoundingBox/crs/text()').to_s
+        },
+        "latLonBoundingBox" => { 
+          'minx' => doc.at_xpath('//latLonBoundingBox/minx/text()').to_s,
+          'miny' => doc.at_xpath('//latLonBoundingBox/miny/text()').to_s,
+          'maxx' => doc.at_xpath('//latLonBoundingBox/maxx/text()').to_s,
+          'maxy' => doc.at_xpath('//latLonBoundingBox/maxy/text()').to_s,
+          'crs' => doc.at_xpath('//latLonBoundingBox/crs/text()').to_s
+        },
         "abstract" => doc.at_xpath('//abstract/text()').to_s, 
         "supportedFormats" => doc.xpath('//supportedFormats/string').collect{ |t| t.to_s },
         "metadataLinks" => doc.xpath('//metadataLinks/metadataLink').collect{ |m| 
