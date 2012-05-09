@@ -65,7 +65,7 @@ module RGeoServer
       rescue RestClient::InternalServerError => e 
         $logger.error e.response 
         $logger.flush if $logger.respond_to? :flush 
-        raise GeoServerInvalidRequest, "Error fetching URL: #{url}. See $logger for details" 
+        raise GeoServerInvalidRequest, "Error fetching URL: #{sub_url}. See $logger for details" 
       end 
     end 
 

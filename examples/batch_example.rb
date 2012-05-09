@@ -30,8 +30,7 @@ $layers = YAML::load(File.open(File.join(File.dirname(__FILE__), 'layers.yaml'))
 # ["record_19", {"format"=>"GeoTIFF", "size"=>"208 MB", "title"=> "Antietam 1867", "metadata"=>"http://example.com/geonetwork/srv/en/fgdc.xml?id=1090", "projection"=>"GCS_WGS_1984", "filename"=>"g3881015alpha.tif", "description"=>"Map shows the U.S. Civil War battle of Antietam.  It indicates fortifications, roads, railroads, houses, names of residents, fences, drainage, vegetation, and relief by hachures.", "layername"=>"Antietam 1867"}]
 
 # Connect to the GS catalog
-$c = RGeoServer.catalog
-$c.client :url=>"http://geoserver.example.com/geoserver/rest", :password=>"admin", :user=>"admin" 
+$c = RGeoServer::Catalog.new :url=>"http://geoserver.example.com/geoserver/rest", :geowebcache_url => "http://geoserver.example.com/geoserver/gwc/rest", :password=>"admin", :user=>"admin" 
 
 # Obtain a handle to the workspace. 
 ws = RGeoServer::Workspace.new $c, :name => 'ogp'
