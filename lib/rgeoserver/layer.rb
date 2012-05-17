@@ -20,9 +20,9 @@ module RGeoServer
         'GWC.gridSets' => 'EPSG:4326,EPSG:900913'
       }, 
       :attribution => {
-        :logo_height => '0', 
-        :logo_width => '0', 
-        :title => ''
+        'logo_height' => '0', 
+        'logo_width' => '0', 
+        'title' => ''
       }, 
       :layer_type => nil 
     }
