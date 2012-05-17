@@ -122,7 +122,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
       }
     end
     it "should issue seed on an existing layer's cache" do 
-      pending "This certainly passes. We are skipping it since it is a CPU intense operation"
+      pending "This certainly passes. We are skipping it since it is a CPU intensive operation"
       lyr = RGeoServer::Layer.new @catalog, :name => 'Arc_Sample'
       options = {
         :srs => {:number => 4326 },

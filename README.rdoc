@@ -63,13 +63,17 @@ A full sample script creating coverage stores in a small cluster:
 
   (1..7).each do |cat_id|
     cat = RGeoServer::Catalog.new :user=>'admin', :url => "http://geoserver-app#{cat_id}/rest", :password => "osgeo!"
-    ws = cat.get_workspace('cite')
+    ws = cat.get_default_workspace
     cat.list(RGeoServer::CoverageStore, layers.keys, :workspace => ws) do |cs|
-      cs.description = layers[cs.name]['description']
       cs.url = layers[cs.name]['url']
       cs.data_type = layers[cs.name]['type']
       cs.enabled = 'true'
       cs.save
+      # Create the corresponding layer
+      c = RGeoServer::Coverage.new cat, :workspace => ws, :coverage_store => cs, :name => cs.name 
+      c.title = cs_name.gsub('_',' ').titleize
+      c.abstract = layers[cs.name]['description']
+      c.save
     end
   end
 
@@ -123,6 +127,7 @@ or set an environment variable, for example:
 - Complete documentation.
 - Complete test coverage: 
   - Add functional tests and hook to CI service (most likely travis-ci). 
+  - Break down testing into separate specs per class.
   - Add more flexibility for integration tests with embedded Jetty and other containers.
   - Add ability to perform integration tests in a CI server.
 - Add GeoWebCache REST API operations for seeding and truncating layers.
@@ -131,6 +136,8 @@ or set an environment variable, for example:
   - Connect under SSL.
   - Batch processing.
 - Migrate base HTTP client to {Weary}[https://github.com/mwunsch/weary]?
+- Curlify operations: To provide optional log/output of the curl command that would produce the same 
+result as the ResourceInfo#save method.
 
 == Contributing with Patches and Pull requests checklist
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet

@@ -33,7 +33,7 @@ $layers = YAML::load(File.open(File.join(File.dirname(__FILE__), 'layers.yaml'))
 $c = RGeoServer::Catalog.new :url=>"http://geoserver.example.com/geoserver/rest", :geowebcache_url => "http://geoserver.example.com/geoserver/gwc/rest", :password=>"admin", :user=>"admin" 
 
 # Obtain a handle to the workspace. 
-ws = RGeoServer::Workspace.new $c, :name => 'ogp'
+ws = RGeoServer::Workspace.new $c, :name => 'orbis'
 ws.delete :recurse => true unless ws.new? # comment or uncomment to start from scratch
 ws.save if ws.new?
 
@@ -57,6 +57,7 @@ $layers.each{ |id, val|
   format = val['format']
   metadata = val['metadata']
   filename = val['filename']
+  description = val['description'
   name = layername
 
   if format == 'GeoTIFF'
@@ -64,7 +65,7 @@ $layers.each{ |id, val|
       # Create of a coverage store
       cs = RGeoServer::CoverageStore.new $c, :workspace => ws, :name => name
       cs.url = "file:///geo_data/staging/#{filename}"
-      cs.description = val['description']
+      cs.description = description 
       cs.enabled = 'true'
       cs.data_type = format
       cs.save
@@ -77,7 +78,7 @@ $layers.each{ |id, val|
       # Check if a layer has been created, extract some metadata
       lyr = RGeoServer::Layer.new $c, :name => name
       if !lyr.new? && SEED
-        lyr.seed :issue, options
+        lyr.seed :issue, SEED_OPTIONS
       end
     rescue Exception => e
       puts e.inspect
@@ -88,12 +89,14 @@ $layers.each{ |id, val|
       # Create data stores for shapefiles
       cs = RGeoServer::DataStore.new $c, :workspace => ws, :name => name
       cs.connection_parameters = {
-        "url" =>  "file:///geo_data/staging/#{filename}"
+        "url" =>  "file:///geo_data/staging/#{filename}",
+        "namespace" => "http://example.com"
       }
       cs.enabled = 'true'
       cs.save
       ft = RGeoServer::FeatureType.new $c, :workspace => ws, :data_store => cs, :name => name 
-      #ft.metadata_links = [{"type"=>"text/plain", "metadataType"=>"FGDC", "content"=> metadata}]
+      ft.title = title 
+      ft.abstract = description
       ft.save
     rescue Exception => e
       puts e.inspect
