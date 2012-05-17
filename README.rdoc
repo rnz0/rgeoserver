@@ -2,7 +2,7 @@
 
 == RGeoServer
 
-RGeoServer is a Ruby client for the GeoServer RESTful administrative interface. 
+RGeoServer is a Ruby client for the GeoServer RESTful Configuration interface. 
 
 It provides primitive Ruby model abstraction.
 
@@ -74,6 +74,17 @@ A full sample script creating coverage stores in a small cluster:
       c.title = cs_name.gsub('_',' ').titleize
       c.abstract = layers[cs.name]['description']
       c.save
+      # Seed the tile cache
+      l = RGeoServer::Layer.new cat, :name => cs.name
+      l.seed :issue, {
+        :srs => {
+          :number => 4326
+        },
+        :zoomStart => 1,
+        :zoomStop => 10,
+        :format => 'image/png',
+        :threadCount => 1
+      }
     end
   end
 
