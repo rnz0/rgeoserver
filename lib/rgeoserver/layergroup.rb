@@ -116,7 +116,7 @@ module RGeoServer
 
     def profile_xml_to_hash profile_xml
       doc = profile_xml_to_ng profile_xml
-      name = doc.at_xpath('//name/text()').text.strip
+      name = doc.at_xpath('//name/text()').to_s
 
       h = {
         "name" => name, 
