@@ -6,6 +6,8 @@ describe "Integration test against a GeoServer instance", :integration => true d
   before(:all) do
     @catalog = RGeoServer.catalog
     @fixtures_dir = File.expand_path File.join(File.dirname(__FILE__), "/../fixtures/")
+    @shapefile = File.expand_path File.join(@fixtures_dir, 'datasets/vector/granules.shp')
+    @raster = File.expand_path File.join(@fixtures_dir, 'datasets/raster/test.tif')
   end
   
   
@@ -114,6 +116,45 @@ describe "Integration test against a GeoServer instance", :integration => true d
       lyr.enabled = 'true'
       lyr.resource = @catalog.get_coverage 'sf','sfdem', 'sfdem'
       expect{ lyr.save }.to raise_error
+    end
+
+    it "should be updated once created" do
+      lyr = @catalog.get_layers.first
+      original_name = lyr.name
+      original_attribution = lyr.attribution
+
+      lyr.attribution = {
+        'logo_height' => '10',
+        'logo_width' => '10',
+        'title' => 'New attribution title'
+      }
+      lyr.save
+      
+      chklyr = RGeoServer::Layer.new @catalog, :name => original_name
+      lyr.eql? chklyr
+    
+      # Undo changes
+      chklyr.attribution = original_attribution
+      chklyr.save
+      chklyr.attribution.eql? original_attribution
+    end
+    
+    it "should be created from a store" do
+      # Create a Datastore and a feature type under the default workspace (set it up as nil)
+      ds = RGeoServer::DataStore.new @catalog, :workspace => nil, :name => 'test_shapefile2', :connection_parameters => {"url" => "file://#{@shapefile}"}
+      ds.enabled = true
+      ds.new?.should == true
+      ds.save
+      ft = RGeoServer::FeatureType.new @catalog, :workspace => nil, :data_store => ds, :name => 'granules'
+      ft.save
+  
+      lyr = RGeoServer::Layer.new @catalog, :name => 'granules'
+      lyr.new?.should == false
+      lyr.resource.eql? ft
+      ds.delete :recurse => true
+      # Check layer does not exist anymore after deleting the base store
+      lyr = RGeoServer::Layer.new @catalog, :name => 'granules'
+      lyr.new?.should == true
     end
 
     it "should list layers" do
@@ -226,8 +267,6 @@ describe "Integration test against a GeoServer instance", :integration => true d
     before :all do
       @ws = RGeoServer::Workspace.new @catalog, :name => 'test_workspace_for_stores'
       @ws.save
-      @shapefile = File.expand_path File.join(@fixtures_dir, 'datasets/vector/granules.shp')
-      @raster = File.expand_path File.join(@fixtures_dir, 'datasets/raster/test.tif')
     end
   
     after :all do
@@ -313,6 +352,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
         cs.save
         c = RGeoServer::Coverage.new @catalog, :workspace => @ws, :coverage_store => cs, :name => 'raster_coverage'
         c.title = 'Test Raster Layer'
+        c.abstract = 'This is the abstract of the layer'
         c.save
         #c.metadata_links = [{"type"=>"text/plain", "metadataType"=>"FGDC", "content"=>"http://example.com/geonetwork/srv/en/fgdc.xml?id=1090"}]
         #c.save
