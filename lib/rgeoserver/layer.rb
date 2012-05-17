@@ -3,8 +3,29 @@ module RGeoServer
   # A layer is a published resource (feature type or coverage).
   class Layer < ResourceInfo
 
-    OBJ_ATTRIBUTES = {:enabled => 'enabled', :catalog => 'catalog', :name => 'name', :default_style => 'default_style', :alternate_styles => 'alternate_styles', :metadata => 'metadata', :attribution => 'attribution', :layer_type => 'type' }
-    OBJ_DEFAULT_ATTRIBUTES = {:enabled => 'true', :catalog => nil, :name => nil, :default_style => nil, :alternate_styles => [], :metadata => {}, :attribution => {:logo_height => '0', :logo_width => '0', 'title' => ''}, :layer_type => nil }
+    OBJ_ATTRIBUTES = {:enabled => 'enabled', :queryable => 'queryable', :path => 'path', :catalog => 'catalog', :name => 'name', :default_style => 'default_style', :alternate_styles => 'alternate_styles', :metadata => 'metadata', :attribution => 'attribution', :layer_type => 'type' }
+    OBJ_DEFAULT_ATTRIBUTES = {
+      :enabled => 'true', 
+      :queryable => 'true', 
+      :path => '/', 
+      :catalog => nil, 
+      :name => nil, 
+      :default_style => nil, 
+      :alternate_styles => [], 
+      :metadata => {
+        'GWC.autoCacheStyles' => 'true',
+        'GWC.gutter' => '0',
+        'GWC.enabled' => 'true',
+        'GWC.cacheFormats' => 'image/jpeg,image/png',
+        'GWC.gridSets' => 'EPSG:4326,EPSG:900913'
+      }, 
+      :attribution => {
+        :logo_height => '0', 
+        :logo_width => '0', 
+        :title => ''
+      }, 
+      :layer_type => nil 
+    }
 
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
@@ -33,12 +54,18 @@ module RGeoServer
       nil 
     end
 
+    def update_params name_route = @name
+      { :layer => name_route }
+    end
+
     def message
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.layer { 
-          #xml.name @name
-          xml.type_ layer_type  
-          xml.enabled enabled
+          xml.name @name 
+          xml.path path 
+          xml.type_ layer_type 
+          xml.enabled @enabled 
+          xml.queryable @queryable
           xml.defaultStyle {
             xml.name default_style
           } 
@@ -52,6 +79,13 @@ module RGeoServer
           xml.resource(:class => resource.class.resource_name){
             xml.name resource.name 
           } unless resource.nil?
+          xml.metadata {
+            metadata.each_pair { |k,v|
+              xml.entry(:key => k) {
+                xml.text v
+              }
+            } 
+          }
           xml.attribution {
             xml.title attribution['title'] unless attribution['title'].empty?
             xml.logoWidth attribution['logo_width']
@@ -130,8 +164,10 @@ module RGeoServer
         "path" => doc.at_xpath('//path/text()').to_s,
         "default_style" => doc.at_xpath('//defaultStyle/name/text()').to_s,
         "alternate_styles" => doc.xpath('//styles/style/name/text()').collect{ |s| s.to_s},
+        # Types can be: VECTOR, RASTER, REMOTE, WMS
         "type" => doc.at_xpath('//type/text()').to_s,
         "enabled" => doc.at_xpath('//enabled/text()').to_s,
+        "queryable" => doc.at_xpath('//queryable/text()').to_s,
         "attribution" => { 
           "title" => doc.at_xpath('//attribution/title/text()').to_s,
           "logo_width" => doc.at_xpath('//attribution/logoWidth/text()').to_s,
@@ -174,7 +210,7 @@ module RGeoServer
     # @param[Hash] options for seed message. Read the documentation
     def seed operation, options
       op = operation.to_sym
-      sub_path = "seed/#{resource_name}.xml"
+      sub_path = "seed/#{prefixed_name}.xml"
       case op
       when :issue
         @catalog.do_url sub_path, :post, build_seed_request(:seed, options), {},  @catalog.gwc_client
@@ -189,7 +225,7 @@ module RGeoServer
     def build_seed_request operation, options
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.seedRequest { 
-          xml.name resource_name
+          xml.name prefixed_name
 
           xml.srs {
             xml.number options[:srs][:number]
