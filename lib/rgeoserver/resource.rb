@@ -57,7 +57,7 @@ module RGeoServer
       end
   
       # Return full name of resource with namespace prefix
-      def resource_name
+      def prefixed_name
         return "#{workspace.name}:#{name}" if self.respond_to?(:workspace)
         raise "Workspace is not defined for this resource"
       end
@@ -68,6 +68,12 @@ module RGeoServer
 
       def update_method
         :put 
+      end
+  
+      # We pass the old name "name_route" in case the name of the resource is being edited
+      # Child classes should implement this
+      def update_params name_route = name
+        { self.class.resource_name.downcase.to_sym => name_route }  
       end
 
       # Modify or save the resource
@@ -97,8 +103,8 @@ module RGeoServer
             @catalog.add(route, message, create_method, options) 
             clear 
           else
-            options = update_options.merge(options) if self.respond_to?(:update_options)
-            route = self.respond_to?(:update_route)? update_route : {@route => name_route}
+            options = update_params(name_route).merge(options)
+            route = {@route => name_route}
             @catalog.modify(route, message, update_method, options) #unless changes.empty? 
           end
 
