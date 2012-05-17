@@ -93,8 +93,8 @@ module RGeoServer
     def get_layer layer
       response = self.search :layers => layer
       doc = Nokogiri::XML(response)
-      name = doc.at_xpath(Layer.member_xpath)
-      return Layer.new self, :name => name.text
+      name = doc.at_xpath("#{Layer.member_xpath}/name/text()").to_s
+      return Layer.new self, :name => name
     end
 
     #= Styles (SLD Style Layer Descriptor)
@@ -113,8 +113,8 @@ module RGeoServer
     def get_style style
       response = self.search :styles => style
       doc = Nokogiri::XML(response)
-      name = doc.at_xpath(Style.member_xpath)
-      return Style.new self, :name => name.text if name
+      name = doc.at_xpath("#{Style.member_xpath}/name/text()").to_s
+      return Style.new self, :name => name
     end
 
 
