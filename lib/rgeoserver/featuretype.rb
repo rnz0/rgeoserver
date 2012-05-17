@@ -35,7 +35,8 @@ module RGeoServer
     def message
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.featureType {
-          xml.name @name
+          xml.name @name if new?
+          xml.enabled @enabled if (enabled_changed? || new?)
           unless new?
             xml.title @title
             xml.abstract @abtract if abstract_changed?
@@ -114,7 +115,7 @@ module RGeoServer
           { 
             'type' => m.at_xpath('//type/text()').to_s, 
             'metadataType' => m.at_xpath('//metadataType/text()').to_s,
-            'content' => m.at_xpath('//content').text.strip
+            'content' => m.at_xpath('//content/text()').to_s
           } 
         },
         "attributes" => doc.xpath('//attributes/attribute').collect{ |a| 

@@ -4,7 +4,7 @@ module RGeoServer
   class DataStore < ResourceInfo
 
     OBJ_ATTRIBUTES = {:enabled => "enabled", :catalog => "catalog", :workspace => "workspace", :name => "name", :connection_parameters => "connectionParameters"} 
-    OBJ_DEFAULT_ATTRIBUTES = {:enabled => true, :catalog => nil, :workspace => nil, :name => nil, :connection_parameters => {}}
+    OBJ_DEFAULT_ATTRIBUTES = {:enabled => 'true', :catalog => nil, :workspace => nil, :name => nil, :connection_parameters => {}}
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
 
@@ -41,12 +41,12 @@ module RGeoServer
     def message
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.dataStore {
-          xml.enabled true
           xml.name @name
+          xml.enabled @enabled
           xml.connectionParameters {  # this could be empty
             @connection_parameters.each_pair { |k,v| 
               xml.entry(:key => k) {
-                xml.text  v
+                xml.text v
               }
             } unless @connection_parameters.empty? 
           }

@@ -32,10 +32,14 @@ module RGeoServer
       @@route % @workspace.name 
     end
 
+    def update_params name_route = @name 
+      { :name => name_route, :workspace => @workspace.name }
+    end
+
     def message
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.coverageStore {
-          xml.name @name if new?
+          xml.name @name  
           xml.workspace {
             xml.name @workspace.name
           }
