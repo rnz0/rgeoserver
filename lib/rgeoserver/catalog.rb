@@ -63,8 +63,8 @@ module RGeoServer
     def get_default_workspace
       response = self.search :workspaces => 'default'
       doc = Nokogiri::XML(response)
-      name = doc.at_xpath(Workspace.member_xpath)
-      return Workspace.new self, :name => name.text if name
+      name = doc.at_xpath("#{Workspace.member_xpath}/name/text()").to_s
+      return Workspace.new self, :name => name
     end
  
     def set_default_workspace
@@ -126,8 +126,13 @@ module RGeoServer
       raise NotImplementedError
     end 
 
+    # @return [RGeoServer::Namespace]
     def get_default_namespace 
-      raise NotImplementedError
+      response = self.search :namespaces => 'default'
+      doc = Nokogiri::XML(response)
+      name = doc.at_xpath("#{Namespace.member_xpath}/prefix/text()").to_s
+      uri = doc.at_xpath("#{Namespace.member_xpath}/uri/text()").to_s
+      return Namespace.new self, :name => name, :uri => uri 
     end 
 
     def set_default_namespace id, prefix, uri 

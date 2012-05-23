@@ -17,6 +17,12 @@ describe "Integration test against a GeoServer instance", :integration => true d
       obj.new?.should == true
     end  
 
+    it "should get default namespace" do
+      obj = @catalog.get_default_namespace 
+      obj.name.should == 'cite'
+      obj.uri.should == 'http://www.opengeospatial.net/cite'
+    end  
+
     it "should create a new namespace, update  and delete it right after" do
       obj = RGeoServer::Namespace.new @catalog, :name => 'test_ns', :uri => 'http://localhost'
       obj.new?.should == true
@@ -37,6 +43,12 @@ describe "Integration test against a GeoServer instance", :integration => true d
   end
 
   context "Workspaces" do 
+  
+    it "should get default workspace" do
+      w = @catalog.get_default_workspace
+      w.name.should == 'cite'
+    end
+
     it "should list workspaces" do
       @catalog.get_workspaces.each{ |obj|
         obj.profile.should_not be_nil
