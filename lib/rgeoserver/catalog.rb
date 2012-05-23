@@ -61,10 +61,10 @@ module RGeoServer
 
     # @return [RGeoServer::Workspace]
     def get_default_workspace
-      dw = Workspace.new self, :name => 'default'
-      w = Workspace.new self, :name => w.name
-      raise "No default workspace is available in the catalog" unless w.new?
-      w
+      response = self.search :workspaces => 'default'
+      doc = Nokogiri::XML(response)
+      name = doc.at_xpath(Workspace.member_xpath)
+      return Workspace.new self, :name => name.text if name
     end
  
     def set_default_workspace
