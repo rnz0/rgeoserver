@@ -132,7 +132,6 @@ or set an environment variable, for example:
 - <b>v0.5</b> - Initial alpha release
 
 == TODO
-- Handle default resources transparently.
 - Complete data stores and coverages functionality and data upload.
 - Complete updating data in objects. On failure, objects should roll back.
 - Complete documentation.
