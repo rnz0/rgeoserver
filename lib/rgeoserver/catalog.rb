@@ -67,8 +67,14 @@ module RGeoServer
       return Workspace.new self, :name => name
     end
  
-    def set_default_workspace
-      raise NotImplementedError
+    # Assign default workspace
+    # @param [String] workspace name
+    def set_default_workspace workspace
+       raise TypeError, "Workspace name must be a string" unless workspace.instance_of? String
+       dws = Workspace.new self, :name => 'default'
+       dws.name = workspace # This creates a new workspace if name is new
+       dws.save
+       dws
     end
     
     # @param [String] store
