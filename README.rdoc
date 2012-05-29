@@ -140,7 +140,6 @@ or set an environment variable, for example:
   - Break down testing into separate specs per class.
   - Add more flexibility for integration tests with embedded Jetty and other containers.
   - Add ability to perform integration tests in a CI server.
-- Add GeoWebCache REST API operations for seeding and truncating layers.
 - Provide more examples:
   - Customize configuration.
   - Connect under SSL.
@@ -160,13 +159,13 @@ result as the ResourceInfo#save method.
 
 
 == Acknowledgements
-Inspired on the {Rubydora}[https://github.com/cbeer/rubydora] and RSolr gems. Followed somewhat closely to {gsconfig.py}[https://github.com/dwins/gsconfig.py] 
+Inspired on the {Rubydora}[https://github.com/cbeer/rubydora] gem. Followed somewhat closely to {gsconfig.py}[https://github.com/dwins/gsconfig.py] 
 
 == Contributors
 
 
 == License 
 
-Copyright (c) 2011 Renzo Sanchez-Silva <renzo@stanford.edu>.
+Copyright (c) 2012 Renzo Sanchez-Silva <renzo@stanford.edu>.
 
 Licensed under the {MIT License}[http://www.opensource.org/licenses/MIT].
