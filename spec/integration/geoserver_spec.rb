@@ -19,8 +19,8 @@ describe "Integration test against a GeoServer instance", :integration => true d
 
     it "should get default namespace" do
       obj = @catalog.get_default_namespace 
-      obj.name.should == 'cite'
-      obj.uri.should == 'http://www.opengeospatial.net/cite'
+      obj.name.should_not be_empty
+      obj.uri.should_not be_empty
     end  
 
     it "should create a new namespace, update  and delete it right after" do
@@ -46,7 +46,27 @@ describe "Integration test against a GeoServer instance", :integration => true d
   
     it "should get default workspace" do
       w = @catalog.get_default_workspace
-      w.name.should == 'cite'
+      w.name.should_not be_empty
+    end
+
+    it "should set default workspace" do
+      w = @catalog.get_default_workspace
+      # Workspace name parameter is a string not a resource
+      expect{ @catalog.set_default_workspace w}.to raise_error(TypeError)
+      # Expect to not change the current default workspace name if pass its name
+      dws = @catalog.set_default_workspace w.name
+      dws.name.should == w.name
+      # Switch to a default namespace that does not exist (create it too)
+      nws = RGeoServer::Workspace.new @catalog, :name => 'test_new_default_workspace'
+      dws = @catalog.set_default_workspace 'test_new_default_workspace'
+      aws = @catalog.get_default_workspace 
+      aws.name.should == nws.name
+      aws.delete
+      nws.new?.should == true # nws should not exist
+      # Switch to a default workspace that exists
+      ws = @catalog.get_workspaces.first 
+      dws = @catalog.set_default_workspace ws.name
+      ws.name.should == dws.name
     end
 
     it "should list workspaces" do
