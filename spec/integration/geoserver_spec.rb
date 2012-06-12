@@ -391,6 +391,11 @@ describe "Integration test against a GeoServer instance", :integration => true d
         c.title = 'Test Raster Layer'
         c.abstract = 'This is the abstract of the layer'
         c.save
+        cs.coverages.each do |ct|  
+          ct.name.should == c.name
+          ct.workspace.should == c.workspace
+          ct.coverage_store.should == ct.coverage_store  
+        end 
         #c.metadata_links = [{"type"=>"text/plain", "metadataType"=>"FGDC", "content"=>"http://example.com/geonetwork/srv/en/fgdc.xml?id=1090"}]
         #c.save
         #c.metadata_links.first["metadataType"].should == "FGDC"

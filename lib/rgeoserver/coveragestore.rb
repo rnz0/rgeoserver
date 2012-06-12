@@ -73,7 +73,7 @@ module RGeoServer
     end
 
     def coverages &block
-      self.class.list Coverage, @catalog, profile['coverages'], {:workspace => @workspace}, check_remote = true, &block
+      self.class.list Coverage, @catalog, profile['coverages'], {:workspace => @workspace, :coverage_store => self}, check_remote = true, &block
     end
 
     def profile_xml_to_hash profile_xml
