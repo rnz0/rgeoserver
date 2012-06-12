@@ -2,8 +2,8 @@
 module RGeoServer
   # A feature type is a vector based spatial resource or data set that originates from a data store. In some cases, like Shapefile, a feature type has a one-to-one relationship with its data store. In other cases, like PostGIS, the relationship of feature type to data store is many-to-one, with each feature type corresponding to a table in the database.
   class FeatureType < ResourceInfo
-    OBJ_ATTRIBUTES = {:catalog => "catalog", :name => "name", :workspace => "workspace", :enabled => "enabled", :metadata_links => "metadataLinks", :title => "title", :abstract => "abstract" }
-    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :workspace => nil, :coverage_store => nil, :name => nil, :enabled => "false", :metadata_links => [], :title => nil, :abtract => nil } 
+    OBJ_ATTRIBUTES = {:catalog => "catalog", :name => "name", :workspace => "workspace", :data_store => "data_store", :enabled => "enabled", :metadata_links => "metadataLinks", :title => "title", :abstract => "abstract" }
+    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :workspace => nil, :data_store => nil, :name => nil, :enabled => "false", :metadata_links => [], :title => nil, :abtract => nil } 
    
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
@@ -95,6 +95,7 @@ module RGeoServer
         "title" => doc.at_xpath('//title/text()').to_s,
         "abstract" => doc.at_xpath('//abstract/text()').to_s, 
         "workspace" => @workspace.name, 
+        "data_store" => @data_store.name,
         "nativeName" => doc.at_xpath('//nativeName/text()').to_s,
         "srs" => doc.at_xpath('//srs/text()').to_s,
         "nativeBoundingBox" => { 

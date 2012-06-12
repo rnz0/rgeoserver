@@ -125,7 +125,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
       end
 
       it "should list datastore objects that belong to it" do
-        @ws.data_stores do |ds| 
+        @ws.data_stores do |ds|
           ds.should be_kind_of(RGeoServer::DataStore)
           ["s1", "s2", "s3"].should include ds.name
         end
@@ -347,6 +347,11 @@ describe "Integration test against a GeoServer instance", :integration => true d
         ds.save
         ft = RGeoServer::FeatureType.new @catalog, :workspace => @ws, :data_store => ds, :name => 'granules'
         ft.save
+        ds.featuretypes.each do |dft|  
+          dft.name.should == ft.name
+          dft.workspace.should == ft.workspace
+          dft.data_store.should == ft.data_store  
+        end 
         #ft.metadata_links = [{"type"=>"text/plain", "metadataType"=>"FGDC", "content"=>"http://example.com/geonetwork/srv/en/fgdc.xml?id=2"}]
         #ft.save
         #ft.metadata_links.first["metadataType"].should == "FGDC"

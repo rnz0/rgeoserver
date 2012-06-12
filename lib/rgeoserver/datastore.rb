@@ -70,6 +70,7 @@ module RGeoServer
         else
           raise "Not a valid workspace"
         end
+        
         @name = options[:name].strip
         @connection_parameters = options[:connection_parameters] || {}
         @route = route
@@ -77,7 +78,7 @@ module RGeoServer
     end
 
     def featuretypes &block
-      self.class.list FeatureType, @catalog, profile['featureTypes'], {:workspace => @workspace}, check_remote = true, &block
+      self.class.list FeatureType, @catalog, profile['featureTypes'], {:workspace => @workspace, :data_store => self}, check_remote = true, &block
     end
 
     def profile_xml_to_hash profile_xml
@@ -94,7 +95,6 @@ module RGeoServer
         rescue RestClient::ResourceNotFound
           [] 
         end.freeze
-        
        }
       h  
     end
