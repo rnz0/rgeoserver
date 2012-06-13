@@ -137,7 +137,6 @@ or set an environment variable, for example:
 - Complete updating data in objects. On failure, objects should roll back.
 - Complete documentation.
 - Complete test coverage: 
-  - Add functional tests and hook to CI service (most likely travis-ci). 
   - Break down testing into separate specs per class.
   - Add more flexibility for integration tests with embedded Jetty and other containers.
   - Add ability to perform integration tests in a CI server.
@@ -145,7 +144,7 @@ or set an environment variable, for example:
   - Customize configuration.
   - Connect under SSL.
   - Batch processing.
-- Migrate base HTTP client to {Weary}[https://github.com/mwunsch/weary]?
+- Migrate base HTTP client to {Faraday}[https://github.com/technoweenie/faraday]?
 - Curlify operations: To provide optional log/output of the curl command that would produce the same 
 result as the ResourceInfo#save method.
 
