@@ -1,5 +1,5 @@
 {<img src="https://gemnasium.com/rnz0/rgeoserver.png" alt="Dependency Status" />}[https://gemnasium.com/rnz0/rgeoserver]
-[![Build Status](https://secure.travis-ci.org/rsansil/rgeoserver.png)](http://travis-ci.org/rsansil/rgeoserver)
+{<img src="https://secure.travis-ci.org/rsansil/rgeoserver.png" />}[http://travis-ci.org/rsansil/rgeoserver]
 
 == RGeoServer
 
