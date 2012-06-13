@@ -1,0 +1,22 @@
+<dataStore>
+  <name>sites_shape</name>
+  <type>Shapefile</type>
+  <enabled>true</enabled>
+  <workspace>
+    <name>test_ws</name>
+    <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="https://geodata.example.com/geoserver/rest/workspaces/test_ws.xml" type="application/xml"/>
+  </workspace>
+  <connectionParameters>
+    <entry key="memory mapped buffer">false</entry>
+    <entry key="create spatial index">true</entry>
+    <entry key="charset">ISO-8859-1</entry>
+    <entry key="filetype">shapefile</entry>
+    <entry key="cache and reuse memory maps">true</entry>
+    <entry key="url">file:data/shapefiles/o_sites.shp</entry>
+    <entry key="namespace">http://www.openplans.org/spearfish</entry>
+  </connectionParameters>
+  <__default>false</__default>
+  <featureTypes>
+  <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="https://geodata.example.com/geoserver/rest/workspaces/test_ws/datastores/sites_shape/featuretypes.xml" type="application/xml"/>
+  </featureTypes>
+</dataStore>

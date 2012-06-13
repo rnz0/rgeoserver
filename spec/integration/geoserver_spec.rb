@@ -114,10 +114,6 @@ describe "Integration test against a GeoServer instance", :integration => true d
       before :all do
         @ws = RGeoServer::Workspace.new @catalog, :name => 'test_workspace_with_stores'
         @ws.save 
-        ["s1", "s2","s3"].each{ |s|
-          ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => s
-          ds.save 
-        }
       end
 
       after :all do
@@ -125,9 +121,13 @@ describe "Integration test against a GeoServer instance", :integration => true d
       end
 
       it "should list datastore objects that belong to it" do
+        ['s1', 's2', 's3'].each{ |s|
+          ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => s
+          ds.save 
+        }
         @ws.data_stores do |ds|
           ds.should be_kind_of(RGeoServer::DataStore)
-          ["s1", "s2", "s3"].should include ds.name
+          ['s1', 's2', 's3'].should include ds.name
         end
       end
 
@@ -173,7 +173,8 @@ describe "Integration test against a GeoServer instance", :integration => true d
     
     it "should be created from a store" do
       # Create a Datastore and a feature type under the default workspace (set it up as nil)
-      ds = RGeoServer::DataStore.new @catalog, :workspace => nil, :name => 'test_shapefile2', :connection_parameters => {"url" => "file://#{@shapefile}"}
+      ds = RGeoServer::DataStore.new @catalog, :workspace => nil, :name => 'test_shapefile2'
+      ds.connection_parameters = {"url" => "file://#{@shapefile}"}
       ds.enabled = true
       ds.new?.should == true
       ds.save
@@ -326,7 +327,8 @@ describe "Integration test against a GeoServer instance", :integration => true d
       end
 
       it "should create a datastore under existing workspace, update and delete it right after" do
-        ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile', :connection_parameters => {"namespace"=> "http://test_workspace_for_stores", "url" => "file://#{@shapefile}"}
+        ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile'
+        ds.connection_parameters = {"namespace"=> "http://test_workspace_for_stores", "url" => "file://#{@shapefile}"}
         ds.new?.should == true
         ds.save
         ds.new?.should == false
@@ -342,7 +344,8 @@ describe "Integration test against a GeoServer instance", :integration => true d
       end
 
       it "should create a datastore under existing workspace and add a feature type that will also create a layer" do
-        ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile2', :connection_parameters => {"url" => "file://#{@shapefile}", "namespace" => "http://test_workspace_for_stores"}
+        ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile2'
+        ds.connection_parameters = {"url" => "file://#{@shapefile}", "namespace" => "http://test_workspace_for_stores"}
         ds.new?.should == true
         ds.save
         ft = RGeoServer::FeatureType.new @catalog, :workspace => @ws, :data_store => ds, :name => 'granules'

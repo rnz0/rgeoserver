@@ -48,7 +48,7 @@ module RGeoServer
               xml.entry(:key => k) {
                 xml.text v
               }
-            } unless @connection_parameters.empty? 
+            } unless @connection_parameters.nil? || @connection_parameters.empty?
           }
         }
       end
@@ -72,7 +72,6 @@ module RGeoServer
         end
         
         @name = options[:name].strip
-        @connection_parameters = options[:connection_parameters] || {}
         @route = route
       end        
     end

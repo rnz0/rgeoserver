@@ -38,14 +38,17 @@ module RGeoServer
       # @param [bool] check_remote if already exists in catalog and cache it
       # @yield [RGeoServer::ResourceInfo] 
       def self.list klass, catalog, names, options, check_remote = false, &block
-        return to_enum(:list, klass, catalog, names, options).to_a unless block_given?
-         
-        (names.is_a?(Array)? names : [names]).each { |name|
-          obj = klass.new catalog, options.merge(:name => name)
-          obj.new? if check_remote  
-          block.call(obj)
-        }        
-        
+        if names.nil?
+          return []
+        elsif !block_given?
+          to_enum(:list, klass, catalog, names, options).to_a unless block_given?
+        else 
+          (names.is_a?(Array)? names : [names]).each { |name|
+            obj = klass.new catalog, options.merge(:name => name)
+            obj.new? if check_remote  
+            block.call(obj)
+          }        
+        end 
       end
 
       def initialize options
