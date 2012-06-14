@@ -3,4 +3,12 @@
   <name>o_sitesnew</name>
   <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="https://geodata.example.com/geoserver/rest/workspaces/test_ws/datastores/sites_shape/featuretypes/o_sitesnew.xml" type="application/xml"/>
   </featureType>
+  <featureType>
+  <name>o_sitesnew2</name>
+  <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="https://geodata.example.com/geoserver/rest/workspaces/test_ws/datastores/sites_shape/featuretypes/o_sitesnew2.xml" type="application/xml"/>
+  </featureType>
+  <featureType>
+  <name>o_sitesnew3</name>
+  <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="https://geodata.example.com/geoserver/rest/workspaces/test_ws/datastores/sites_shape/featuretypes/o_sitesnew3.xml" type="application/xml"/>
+  </featureType>
 </featureTypes>

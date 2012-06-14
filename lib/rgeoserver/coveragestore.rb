@@ -85,7 +85,15 @@ module RGeoServer
         'enabled' => doc.at_xpath('//enabled/text()').to_s,
         'description' => doc.at_xpath('//description/text()').to_s,
         'url' => doc.at_xpath('//url/text()').to_s
-      }.freeze
+      }
+      doc.xpath('//coverages/atom:link/@href', "xmlns:atom"=>"http://www.w3.org/2005/Atom" ).each{ |l| 
+        h['coverages'] = begin
+          response = @catalog.do_url l.text
+          Nokogiri::XML(response).xpath('//name/text()').collect{ |a| a.text.strip }
+        rescue RestClient::ResourceNotFound
+          []
+        end.freeze
+      }
       h
     end
 

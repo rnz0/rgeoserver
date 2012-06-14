@@ -1,0 +1,15 @@
+<coverageStore>
+  <name>london_1843</name>
+  <description>London in 1843</description>
+  <type>GeoTIFF</type>
+  <enabled>true</enabled>
+  <workspace>
+    <name>authorial_london</name>
+    <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://geodata.example.com/geoserver/rest/workspaces/authorial_london.xml" type="application/xml"/>
+  </workspace>
+  <__default>false</__default>
+  <url>file:data/london/london_1843.tif</url>
+  <coverages>
+    <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://geodata.example.com/geoserver/rest/workspaces/authorial_london/coveragestores/london_1843/coverages.xml" type="application/xml"/>
+  </coverages>
+</coverageStore>

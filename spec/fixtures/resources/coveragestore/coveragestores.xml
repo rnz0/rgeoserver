@@ -1,0 +1,10 @@
+<coverageStores>
+  <coverageStore>
+    <name>london_1843</name>
+    <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://geodata.example.com/geoserver/rest/workspaces/authorial_london/coveragestores/london_1843.xml" type="application/xml"/>
+  </coverageStore>
+  <coverageStore>
+    <name>London_17C</name>
+    <atom:link xmlns:atom="http://www.w3.org/2005/Atom" rel="alternate" href="http://geodata.example.com/geoserver/rest/workspaces/authorial_london/coveragestores/London_17C.xml" type="application/xml"/>
+  </coverageStore>
+</coverageStores>

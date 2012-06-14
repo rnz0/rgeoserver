@@ -74,14 +74,13 @@ describe RGeoServer::DataStore do
   describe "#featuretypes" do
     it 'should list feature types in datastore' do
       ds = RGeoServer::DataStore.new catalog, :workspace => workspace, :name => 'old_test_ds'
-      # there is only one feature type in fixture response old_featuretypes.xml 
-      ds.featuretypes.size.should == 1
+      ds.featuretypes.size.should == 3
       ft = ds.featuretypes.first
       ft.should be_an_instance_of(RGeoServer::FeatureType)
-      ft.name.should == 'o_sitesnew'
+      ['o_sitesnew','o_sitesnew2','o_sitesnew3'].should include ft.name
     end
 
-    it 'should return an empty array of datastore is new or has no feature type resources' do
+    it 'should return an empty array of datastore if or has no feature type resources' do
       ds = RGeoServer::DataStore.new catalog, :workspace => workspace, :name => 'new_test_ds'
       ds.featuretypes.should be_empty
     end
