@@ -6,7 +6,7 @@
 require 'rgeoserver'
 
 # The source catalog is a GeoServer instance version 2.1.0
-$source_gs = RGeoServer::Catalog.new :url=> 'https://oldgeodata.example.com/geoserver/rest', :user=>'renzo', :password=>'changeme'
+$source_gs = RGeoServer::Catalog.new :url=> 'https://oldgeodata.example.com/geoserver/rest', :user=>'admin', :password=>'changeme'
 
 # The target catalog is a GeoServer instance version 2.1.3
 $target_gs = RGeoServer::Catalog.new :url=> 'http://newgeodata.example.com/geoserver/rest', :user=> 'admin', :password => 'geoserver'
