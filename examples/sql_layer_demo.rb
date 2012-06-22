@@ -31,11 +31,13 @@ connection_parameters = {
 
 
 ds = RGeoServer::DataStore.new $catalog, :name => 'sql_example', :workspace => nil
-puts "Creating datastore #{ds.name} in #{$catalog}/workspaces/default"
 ds.connection_parameters = connection_parameters
 ds.enabled = 'true'
 
-ds.save if ds.new?
+if ds.new?
+  puts "Creating datastore #{ds.name} in #{$catalog}/workspaces/default"
+  ds.save
+end
 
 # 2. We create a feature type to point to an actual table in the database.
 # Make sure the user has privileges to access the table otherwise you will get a remote 
