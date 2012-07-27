@@ -3,8 +3,24 @@ module RGeoServer
   # A coverage is a raster based data set which originates from a coverage store.
   class Coverage < ResourceInfo
 
-    OBJ_ATTRIBUTES = {:catalog => "catalog", :workspace => "workspace", :coverage_store => "coverage_store", :name => "name", :title => "title", :abstract => "abstract", :metadata_links => "metadataLinks" }
-    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :workspace => nil, :coverage_store => nil, :name => nil, :title => nil, :abstract => nil,  :metadata_links => [] } 
+    OBJ_ATTRIBUTES = {
+      :catalog => "catalog", 
+      :workspace => "workspace", 
+      :coverage_store => "coverage_store", 
+      :name => "name", 
+      :title => "title", 
+      :abstract => "abstract", 
+      :metadata_links => "metadataLinks" 
+    }
+    OBJ_DEFAULT_ATTRIBUTES = {
+      :catalog => nil, 
+      :workspace => nil, 
+      :coverage_store => nil, 
+      :name => nil, 
+      :title => nil, 
+      :abstract => nil,  
+      :metadata_links => [] 
+    } 
    
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
@@ -76,7 +92,6 @@ module RGeoServer
         end
 
         @name = options[:name]
-        @title = options[:title]
         @enabled = options[:enabled] || true
         @route = route
       end        
