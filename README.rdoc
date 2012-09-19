@@ -162,10 +162,10 @@ result as the ResourceInfo#save method.
 Inspired on the {Rubydora}[https://github.com/cbeer/rubydora] gem. Followed somewhat closely to {gsconfig.py}[https://github.com/dwins/gsconfig.py] 
 
 == Contributors
-
+This package will be supported and maintained by {Stanford University Libraries}[http://library.stanford.edu/].
 
 == License 
 
-Copyright (c) 2012 Renzo Sanchez-Silva <renzo@stanford.edu>.
+Copyright (c) 2012 Renzo Sanchez-Silva <renzo.sanchez.silva@gmail.com>.
 
 Licensed under the {MIT License}[http://www.opensource.org/licenses/MIT].
