@@ -166,6 +166,8 @@ This package will be supported and maintained by {Stanford University Libraries}
 
 == License 
 
-Copyright (c) 2012 Renzo Sanchez-Silva <renzo.sanchez.silva@gmail.com>.
+Copyright (c) 2012 Stanford University
 
-Licensed under the {MIT License}[http://www.opensource.org/licenses/MIT].
+Author: Renzo Sanchez-Silva <renzo.sanchez.silva@gmail.com>.
+
+Licensed under the Apache 2 License.
