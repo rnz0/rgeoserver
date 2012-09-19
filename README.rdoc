@@ -162,7 +162,9 @@ result as the ResourceInfo#save method.
 Inspired on the {Rubydora}[https://github.com/cbeer/rubydora] gem. Followed somewhat closely to {gsconfig.py}[https://github.com/dwins/gsconfig.py] 
 
 == Contributors
-This package will be supported and maintained by {Stanford University Libraries}[http://library.stanford.edu/].
+This package is supported and maintained by Stanford University Libraries.
+
+Bess Sadler <bess@stanford.edu>
 
 == License 
 
