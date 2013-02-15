@@ -9,19 +9,19 @@ describe "Integration test against a GeoServer instance", :integration => true d
     @shapefile = File.expand_path File.join(@fixtures_dir, 'datasets/vector/granules.shp')
     @raster = File.expand_path File.join(@fixtures_dir, 'datasets/raster/test.tif')
   end
-  
-  
-  context "Namespaces" do 
+
+
+  context "Namespaces" do
     it "should instantiate a namespace resource" do
       obj = RGeoServer::Namespace.new @catalog, :name => 'test_ns'
       obj.new?.should == true
-    end  
+    end
 
     it "should get default namespace" do
-      obj = @catalog.get_default_namespace 
+      obj = @catalog.get_default_namespace
       obj.name.should_not be_empty
       obj.uri.should_not be_empty
-    end  
+    end
 
     it "should create a new namespace, update  and delete it right after" do
       obj = RGeoServer::Namespace.new @catalog, :name => 'test_ns', :uri => 'http://localhost'
@@ -35,15 +35,15 @@ describe "Integration test against a GeoServer instance", :integration => true d
       ws.delete :recurse => true unless ws.new?
       obj = RGeoServer::Namespace.new @catalog, :name => 'test_ns', :uri => 'http://localhost'
       obj.new?.should == true
-    end  
+    end
 
     it "should be in correspondence with workspaces" do
       pending "Make sure this also works on update and delete"
     end
   end
 
-  context "Workspaces" do 
-  
+  context "Workspaces" do
+
     it "should get default workspace" do
       w = @catalog.get_default_workspace
       w.name.should_not be_empty
@@ -59,12 +59,12 @@ describe "Integration test against a GeoServer instance", :integration => true d
       # Switch to a default namespace that does not exist (create it too)
       nws = RGeoServer::Workspace.new @catalog, :name => 'test_new_default_workspace'
       dws = @catalog.set_default_workspace 'test_new_default_workspace'
-      aws = @catalog.get_default_workspace 
+      aws = @catalog.get_default_workspace
       aws.name.should == nws.name
       aws.delete
       nws.new?.should == true # nws should not exist
       # Switch to a default workspace that exists
-      ws = @catalog.get_workspaces.first 
+      ws = @catalog.get_workspaces.first
       dws = @catalog.set_default_workspace ws.name
       ws.name.should == dws.name
     end
@@ -72,12 +72,12 @@ describe "Integration test against a GeoServer instance", :integration => true d
     it "should list workspaces" do
       @catalog.get_workspaces.each{ |obj|
         obj.profile.should_not be_nil
-      } 
+      }
     end
 
     it "should return workspace from catalog" do
       obj = @catalog.get_workspace 'topp'
-      obj.profile.should_not be_empty 
+      obj.profile.should_not be_empty
     end
 
     it "should instantiate an existing worskpace object" do
@@ -90,7 +90,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
       obj = RGeoServer::Workspace.new @catalog, :name => 'test_ws'
       obj.delete(:recurse=>true) if !obj.new?
       obj.new?.should == true
-      obj.profile.should == {}  
+      obj.profile.should == {}
       obj.save
       obj.new?.should == false
       obj.enabled.should == 'true'
@@ -104,7 +104,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
     end
 
     it "should fail trying to delete unexisting workspace names from catalog" do
-      lambda{ ["asdfdg", "test3", "test5", "test6"].each{ |w| 
+      lambda{ ["asdfdg", "test3", "test5", "test6"].each{ |w|
           @catalog.purge({:workspaces => w}, {:recurse  => true})
         }
       }.should raise_error
@@ -113,7 +113,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
     context "Datastores of a Workspace" do
       before :all do
         @ws = RGeoServer::Workspace.new @catalog, :name => 'test_workspace_with_stores'
-        @ws.save 
+        @ws.save
       end
 
       after :all do
@@ -123,7 +123,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
       it "should list datastore objects that belong to it" do
         ['s1', 's2', 's3'].each{ |s|
           ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => s
-          ds.save 
+          ds.save
         }
         @ws.data_stores do |ds|
           ds.should be_kind_of(RGeoServer::DataStore)
@@ -134,14 +134,14 @@ describe "Integration test against a GeoServer instance", :integration => true d
     end
   end
 
-  context "Layers" do 
+  context "Layers" do
     it "should instantiate a new layer" do
       lyr = RGeoServer::Layer.new @catalog, :name => 'layer_rgeoserver_test'
       lyr.new?.should == true
     end
 
     it "should not create a new layer directly" do
-      lyr = RGeoServer::Layer.new @catalog, :name => 'layer_rgeoserver_test' 
+      lyr = RGeoServer::Layer.new @catalog, :name => 'layer_rgeoserver_test'
       lyr.new?.should == true
       lyr.default_style = 'rain'
       lyr.alternate_styles = ['raster']
@@ -161,16 +161,16 @@ describe "Integration test against a GeoServer instance", :integration => true d
         'title' => 'New attribution title'
       }
       lyr.save
-      
+
       chklyr = RGeoServer::Layer.new @catalog, :name => original_name
       lyr.eql? chklyr
-    
+
       # Undo changes
       chklyr.attribution = original_attribution
       chklyr.save
       chklyr.attribution.eql? original_attribution
     end
-    
+
     it "should be created from a store" do
       # Create a Datastore and a feature type under the default workspace (set it up as nil)
       ds = RGeoServer::DataStore.new @catalog, :workspace => nil, :name => 'test_shapefile2'
@@ -180,7 +180,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
       ds.save
       ft = RGeoServer::FeatureType.new @catalog, :workspace => nil, :data_store => ds, :name => 'granules'
       ft.save
-  
+
       lyr = RGeoServer::Layer.new @catalog, :name => 'granules'
       lyr.new?.should == false
       lyr.resource.eql? ft
@@ -191,11 +191,11 @@ describe "Integration test against a GeoServer instance", :integration => true d
     end
 
     it "should list layers" do
-      @catalog.get_layers.each { |l| 
+      @catalog.get_layers.each { |l|
         l.profile.should_not be_empty
       }
     end
-    it "should issue seed on an existing layer's cache" do 
+    it "should issue seed on an existing layer's cache" do
       pending "This certainly passes. We are skipping it since it is a CPU intensive operation"
       lyr = RGeoServer::Layer.new @catalog, :name => 'Arc_Sample'
       options = {
@@ -205,10 +205,10 @@ describe "Integration test against a GeoServer instance", :integration => true d
         :format => 'image/png',
         :threadCount => 1
       }
-      lyr.seed :issue, options 
+      lyr.seed :issue, options
     end
 
-    it "should truncate an existing layer's cache" do 
+    it "should truncate an existing layer's cache" do
       lyr = RGeoServer::Layer.new @catalog, :name => 'states'
       options = {
         #:gridSetId => 'EPSG:2163', # this was not found in sample data
@@ -224,24 +224,35 @@ describe "Integration test against a GeoServer instance", :integration => true d
             3291070.6104286816,
             959189.3312465074
           ]
-        },  
+        },
         :parameters => {
           :STYLES => 'pophatch',
           :CQL_FILTER => 'TOTPOP > 10000'
         }
       }
-      lyr.seed :truncate, options  
+      lyr.seed :truncate, options
     end
 
   end
 
   context "LayerGroups" do
+    it "should list group layers" do
+      @catalog.get_layergroups.each { |l|
+        l.profile.should_not be_empty
+      }
+    end
+
+    it "should return a group layer from catalog" do
+      obj = @catalog.get_layergroup 'tiger-ny'
+      obj.profile.should_not be_empty
+    end
+
     it "should instantiate a new group layer" do
       lyrs = ['a','b','c'].collect{|l| RGeoServer::Layer.new @catalog, :name => l}
       stys = ['s1','s2','s3','s4'].collect{|s| RGeoServer::Style.new @catalog, :name => s}
       g = RGeoServer::LayerGroup.new @catalog, :name => 'test_group_layer'
       g.layers = lyrs
-      g.styles = stys 
+      g.styles = stys
       g.new?.should == true
     end
 
@@ -265,15 +276,15 @@ describe "Integration test against a GeoServer instance", :integration => true d
       @test_sld = Nokogiri::XML(File.new(File.join(sld_dir, 'test_style.sld')))
       @pop_sld = Nokogiri::XML(File.new(File.join(sld_dir, 'poptest.sld')))
     end
- 
+
     it "should instantiate a new style" do
       style = RGeoServer::Style.new @catalog, :name => 'style_rgeoserver_test'
       style.new?.should == true
     end
 
     it "should create new styles and delete them" do
-      {'granules_test_style'=> @test_sld, 'poptest_test_style'=> @pop_sld}.each_pair do |name,sld_ng| 
-        style = RGeoServer::Style.new @catalog, :name => name 
+      {'granules_test_style'=> @test_sld, 'poptest_test_style'=> @pop_sld}.each_pair do |name,sld_ng|
+        style = RGeoServer::Style.new @catalog, :name => name
         style.sld_doc = sld_ng.to_xml
         style.save
         style.sld_doc.should be_equivalent_to(sld_ng)
@@ -282,7 +293,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
         style.new?.should == true
       end
     end
-    
+
     it "should list layers that include a style" do
       @catalog.get_styles[1,1].each do |s|
         break
@@ -301,14 +312,14 @@ describe "Integration test against a GeoServer instance", :integration => true d
       @ws = RGeoServer::Workspace.new @catalog, :name => 'test_workspace_for_stores'
       @ws.save
     end
-  
+
     after :all do
-      @ws.delete :recurse => true 
+      @ws.delete :recurse => true
     end
 
     context "DataStores" do
       it "should list all available data stores" do
-        @catalog.get_data_stores.each { |d|  
+        @catalog.get_data_stores.each { |d|
           d.profile.should_not be_empty
         }
       end
@@ -317,13 +328,13 @@ describe "Integration test against a GeoServer instance", :integration => true d
         obj = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile'
         obj.new?.should == true
         obj.name.should == 'test_shapefile'
-        obj.workspace.name.should == @ws.name 
+        obj.workspace.name.should == @ws.name
       end
 
       it "should not create a datastore if workspace does not exit" do
         new_ws = RGeoServer::Workspace.new @catalog, :name => 'workspace_rgeoserver_test'
         obj = RGeoServer::DataStore.new @catalog, :workspace => new_ws, :name => 'test_random_store'
-        obj.new? #.should raise_error 
+        obj.new? #.should raise_error
       end
 
       it "should create a datastore under existing workspace, update and delete it right after" do
@@ -337,7 +348,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
 
         # Add new information
         new_connection_parameters = {"namespace"=>"http://localhost/test_with_stores", "url" => 'file:data/taz_shapes'}
-        ds.connection_parameters = new_connection_parameters 
+        ds.connection_parameters = new_connection_parameters
         ds.changed?.should == true
         ds.save
         ds.profile['connectionParameters'].should == new_connection_parameters
@@ -350,11 +361,11 @@ describe "Integration test against a GeoServer instance", :integration => true d
         ds.save
         ft = RGeoServer::FeatureType.new @catalog, :workspace => @ws, :data_store => ds, :name => 'granules'
         ft.save
-        ds.featuretypes.each do |dft|  
+        ds.featuretypes.each do |dft|
           dft.name.should == ft.name
           dft.workspace.should == ft.workspace
-          dft.data_store.should == ft.data_store  
-        end 
+          dft.data_store.should == ft.data_store
+        end
         #ft.metadata_links = [{"type"=>"text/plain", "metadataType"=>"FGDC", "content"=>"http://example.com/geonetwork/srv/en/fgdc.xml?id=2"}]
         #ft.save
         #ft.metadata_links.first["metadataType"].should == "FGDC"
@@ -363,7 +374,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
 
     context "CoverageStores" do
       it "should list all available coverage stores" do
-        @catalog.get_coverage_stores.each { |c|  
+        @catalog.get_coverage_stores.each { |c|
           c.profile.should_not be_empty
         }
       end
@@ -374,7 +385,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
         cs.enabled = 'true'
         cs.data_type = 'GeoTIFF'
         cs.new?.should == true
-        cs.save 
+        cs.save
         cs.new?.should == false
         cs.description = 'new description'
         cs.description_changed?.should == true
@@ -394,26 +405,26 @@ describe "Integration test against a GeoServer instance", :integration => true d
         c.title = 'Test Raster Layer'
         c.abstract = 'This is the abstract of the layer'
         c.save
-        cs.coverages.each do |ct|  
+        cs.coverages.each do |ct|
           ct.name.should == c.name
           ct.workspace.should == c.workspace
-          ct.coverage_store.should == ct.coverage_store  
-        end 
+          ct.coverage_store.should == ct.coverage_store
+        end
         #c.metadata_links = [{"type"=>"text/plain", "metadataType"=>"FGDC", "content"=>"http://example.com/geonetwork/srv/en/fgdc.xml?id=1090"}]
         #c.save
         #c.metadata_links.first["metadataType"].should == "FGDC"
       end
     end
-  
+
     context "Catalog operations" do
       it "should reload the catalog"  do
         @catalog.reload
       end
-  
+
       it "should reset the catalog" do
         @catalog.reset
       end
-  
+
     end
   end
 end
