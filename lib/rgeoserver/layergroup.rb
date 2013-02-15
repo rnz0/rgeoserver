@@ -9,7 +9,10 @@ module RGeoServer
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
 
-    @@route = "layergroups" 
+    @@xml_list_node = "layerGroups"
+    @@xml_node = "layerGroup"
+
+    @@route = "layergroups"
     @@resource_name = "layerGroup"
 
     def self.resource_name
@@ -17,23 +20,23 @@ module RGeoServer
     end
 
     def self.root_xpath
-      "//#{@@route}/#{@@resource_name}"
+      "//#{@@xml_list_node}/#{@@xml_node}"
     end
 
     def self.member_xpath
-      "//#{resource_name}"
+      "//#{@@xml_node}"
     end
 
     def route
-      @@route  
+      @@route
     end
 
     def message
       builder = Nokogiri::XML::Builder.new do |xml|
-        xml.layerGroup { 
+        xml.layerGroup {
           xml.name @name
           xml.layers {
-            layers.each { |l| 
+            layers.each { |l|
               xml.layer {
                 xml.name l.name
               }
@@ -55,7 +58,7 @@ module RGeoServer
           } if @bounds
         }
       end
-      return builder.doc.to_xml 
+      return builder.doc.to_xml
     end
 
     # @param [RGeoServer::Catalog] catalog
@@ -66,10 +69,10 @@ module RGeoServer
       _run_initialize_callbacks do
         @catalog = catalog
         @name = options[:name].strip
-      end        
+      end
       @route = route
     end
-    
+
     # @param [Array<RGeoServer::Style>] sl list of styles
     def styles= sl
       if sl.inject(true){|t,s| t && s.is_a?(RGeoServer::Style)}
@@ -79,7 +82,7 @@ module RGeoServer
         raise 'Unknown list of styles'
       end
     end
-    
+
     def styles
       @styles ||= begin
         unless profile['styles'].empty?
@@ -101,7 +104,7 @@ module RGeoServer
         raise 'Unknown list of layers'
       end
     end
-    
+
     def layers
       @layers ||= begin
         unless profile['layers'].empty?
@@ -119,20 +122,20 @@ module RGeoServer
       name = doc.at_xpath('//name/text()').to_s
 
       h = {
-        "name" => name, 
+        "name" => name,
         "layers" => doc.xpath('//layers/layer/name/text()').collect{|l| l.to_s},
         "styles" => doc.xpath('//styles/style/name/text()').collect{|s| s.to_s},
-        "bounds" => { 
+        "bounds" => {
           "minx" => doc.at_xpath('//bounds/minx/text()').to_s,
           "maxx" => doc.at_xpath('//bounds/maxx/text()').to_s,
           "miny" => doc.at_xpath('//bounds/miny/text()').to_s,
           "maxy" => doc.at_xpath('//bounds/maxy/text()').to_s,
           "crs" => doc.at_xpath('//bounds/crs/text()')
         },
-        "metadata" => doc.xpath('//metadata/entry').inject({}){ |h, e| h.merge(e['key']=> e.text.to_s) } 
+        "metadata" => doc.xpath('//metadata/entry').inject({}){ |h, e| h.merge(e['key']=> e.text.to_s) }
       }.freeze
-      h  
+      h
     end
 
   end
-end 
+end
