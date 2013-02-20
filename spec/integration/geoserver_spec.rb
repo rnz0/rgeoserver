@@ -4,9 +4,11 @@ describe "Integration test against a GeoServer instance", :integration => true d
   CONFIG = RGeoServer::Config
 
   before(:all) do
+    RestClient.log = '/tmp/restclient.log'
     @catalog = RGeoServer.catalog
     @fixtures_dir = File.expand_path File.join(File.dirname(__FILE__), "/../fixtures/")
     @shapefile = File.expand_path File.join(@fixtures_dir, 'datasets/vector/granules.shp')
+    @shapefile_zip = File.expand_path File.join(@fixtures_dir, 'datasets/vector/granules.zip')
     @raster = File.expand_path File.join(@fixtures_dir, 'datasets/raster/test.tif')
   end
 
@@ -308,12 +310,12 @@ describe "Integration test against a GeoServer instance", :integration => true d
   end
 
   context "Stores" do
-    before :all do
+    before :each do
       @ws = RGeoServer::Workspace.new @catalog, :name => 'test_workspace_for_stores'
       @ws.save
     end
 
-    after :all do
+    after :each do
       @ws.delete :recurse => true
     end
 
@@ -329,6 +331,31 @@ describe "Integration test against a GeoServer instance", :integration => true d
         obj.new?.should == true
         obj.name.should == 'test_shapefile'
         obj.workspace.name.should == @ws.name
+      end
+
+      it "should instantiate a datastore from file" do
+        obj = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile'
+        obj.new?.should == true
+        obj.name.should == 'test_shapefile'
+        obj.workspace.name.should == @ws.name
+        obj.upload_file @shapefile_zip
+      end
+
+      it "tries to instantiate a datastore from file with invalid data type" do
+        obj = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile'
+        obj.new?.should == true
+        obj.name.should == 'test_shapefile'
+        obj.workspace.name.should == @ws.name
+        expect { obj.upload_file @shapefile_zip, :data_type => :xxx }.to raise_error(RGeoServer::DataStore::DataTypeNotExpected)
+      end
+
+      it "tries to update an existing datastore with file" do
+        obj = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile'
+        obj.new?.should == true
+        obj.name.should == 'test_shapefile'
+        obj.workspace.name.should == @ws.name
+        obj.save
+        expect { obj.upload_file @shapefile_zip }.to raise_error(RGeoServer::DataStore::DataStoreAlreadyExists)
       end
 
       it "should not create a datastore if workspace does not exit" do
