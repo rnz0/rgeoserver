@@ -3,8 +3,8 @@ module RGeoServer
   # A layer group is a grouping of layers and styles that can be accessed as a single layer in a WMS GetMap request. A Layer group is often referred to as a "base map".
   class LayerGroup < ResourceInfo
 
-    OBJ_ATTRIBUTES = {:catalog => 'catalog', :name => 'name', :layers => 'layers', :styles => 'styles', :bounds => 'bounds', :metadata => 'metadata' }
-    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :name => nil, :layers => [], :styles => [], :bounds => {'minx'=>'', 'miny' =>'', 'maxx'=>'', 'maxy'=>'', 'crs' =>''}, :metadata => {} }
+    OBJ_ATTRIBUTES = {:catalog => 'catalog', :name => 'name', :workspace => 'workspace', :layers => 'layers', :styles => 'styles', :bounds => 'bounds', :metadata => 'metadata' }
+    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :name => nil, :workspace => nil, :layers => [], :styles => [], :bounds => {'minx'=>'', 'miny' =>'', 'maxx'=>'', 'maxy'=>'', 'crs' =>''}, :metadata => {} }
 
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
@@ -35,6 +35,9 @@ module RGeoServer
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.layerGroup {
           xml.name @name
+          xml.workspace {
+            xml.name workspace.name
+          } unless workspace.nil?
           xml.layers {
             layers.each { |l|
               xml.layer {
@@ -69,6 +72,7 @@ module RGeoServer
       _run_initialize_callbacks do
         @catalog = catalog
         @name = options[:name].strip
+        @workspace = options[:workspace]
       end
       @route = route
     end
@@ -106,15 +110,51 @@ module RGeoServer
     end
 
     def layers
-      @layers ||= begin
-        unless profile['layers'].empty?
-          return profile['layers'].each{ |s| RGeoServer::Layer.new @catalog, :name => s.name }
+      @layers =
+        unless new?
+          begin
+            unless profile['layers'].empty?
+              return profile['layers'].map{ |s| RGeoServer::Layer.new @catalog, :name => s }
+            else
+              nil
+            end
+          rescue Exception => e
+            nil
+          end
         else
-          nil
+          @layers || []
         end
-      rescue Exception => e
-        nil
+    end
+
+    def workspace
+      if new?
+        return @workspace
+      else
+        return RGeoServer::Workspace.new @catalog, name: profile['workspace']
       end
+    end
+
+    # Retrieve the resource profile as a hash and cache it
+    # @return [Hash]
+    def profile
+      if @profile && !@profile.empty?
+        return @profile
+      end
+
+      @profile =
+        begin
+          h = unless @workspace
+                profile_xml_to_hash(@catalog.search @route => @name )
+              else
+                profile_xml_to_hash(@catalog.search workspaces: @workspace, @route => @name )
+              end
+          @new = false
+          h
+        rescue RestClient::ResourceNotFound
+          # The resource is new
+          @new = true
+          {}
+        end.freeze
     end
 
     def profile_xml_to_hash profile_xml
@@ -123,6 +163,7 @@ module RGeoServer
 
       h = {
         "name" => name,
+        "workspace" => doc.xpath('//workspace/name/text()').to_s,
         "layers" => doc.xpath('//layers/layer/name/text()').collect{|l| l.to_s},
         "styles" => doc.xpath('//styles/style/name/text()').collect{|s| s.to_s},
         "bounds" => {

@@ -19,6 +19,9 @@ module RGeoServer
   autoload :Layer, "rgeoserver/layer"
   autoload :LayerGroup, "rgeoserver/layergroup"
 
+  autoload :BoundingBox, "rgeoserver/utils/boundingbox"
+  autoload :ShapefileInfo, "rgeoserver/utils/shapefile_info"
+
   require 'restclient'
   require 'nokogiri'
   require 'time'
@@ -30,7 +33,7 @@ module RGeoServer
 
   def self.catalog
     @catalog ||= self.connect(self.default_config.geoserver)
-  end 
+  end
 
   def self.catalog= catalog
     @catalog = catalog
