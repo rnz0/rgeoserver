@@ -12,7 +12,6 @@ describe "Integration test against a GeoServer instance", :integration => true d
     @raster = File.expand_path File.join(@fixtures_dir, 'datasets/raster/test.tif')
   end
 
-
   context "Namespaces" do
     it "should instantiate a namespace resource" do
       obj = RGeoServer::Namespace.new @catalog, :name => 'test_ns'
@@ -137,6 +136,15 @@ describe "Integration test against a GeoServer instance", :integration => true d
   end
 
   context "Layers" do
+    before :each do
+      @ws = RGeoServer::Workspace.new @catalog, :name => 'test_workspace_for_layers'
+      @ws.save
+    end
+
+    after :each do
+      @ws.delete :recurse => true
+    end
+
     it "should instantiate a new layer" do
       lyr = RGeoServer::Layer.new @catalog, :name => 'layer_rgeoserver_test'
       lyr.new?.should == true
@@ -175,18 +183,45 @@ describe "Integration test against a GeoServer instance", :integration => true d
 
     it "should be created from a store" do
       # Create a Datastore and a feature type under the default workspace (set it up as nil)
-      ds = RGeoServer::DataStore.new @catalog, :workspace => nil, :name => 'test_shapefile2'
+      ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile2'
       ds.connection_parameters = {"url" => "file://#{@shapefile}"}
       ds.enabled = true
       ds.new?.should == true
       ds.save
-      ft = RGeoServer::FeatureType.new @catalog, :workspace => nil, :data_store => ds, :name => 'granules'
+
+      ft = RGeoServer::FeatureType.new @catalog, :workspace => @ws, :data_store => ds, :name => 'granules'
       ft.save
+
+      ds.clear
 
       lyr = RGeoServer::Layer.new @catalog, :name => 'granules'
       lyr.new?.should == false
       lyr.resource.eql? ft
       ds.delete :recurse => true
+      # Check layer does not exist anymore after deleting the base store
+      lyr = RGeoServer::Layer.new @catalog, :name => 'granules'
+      lyr.new?.should == true
+    end
+
+    it "should be created from a store with file upload" do
+      # Create a Datastore and a feature type under the default workspace (set it up as nil)
+      ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile4'
+      ds.delete :recurse => true unless ds.new?
+
+      ds.enabled = true
+      ds.new?.should == true
+      ds.upload_file @shapefile_zip
+
+      ft = RGeoServer::FeatureType.new @catalog, :workspace => @ws, :data_store => ds, :name => 'granules'
+      ft.save
+
+      ds.clear #reload DataStore
+
+      lyr = RGeoServer::Layer.new @catalog, :name => 'granules'
+      lyr.new?.should == false
+      lyr.resource.eql? ft
+      ds.delete :recurse => true
+
       # Check layer does not exist anymore after deleting the base store
       lyr = RGeoServer::Layer.new @catalog, :name => 'granules'
       lyr.new?.should == true
