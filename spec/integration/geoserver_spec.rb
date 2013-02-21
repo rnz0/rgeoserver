@@ -205,25 +205,45 @@ describe "Integration test against a GeoServer instance", :integration => true d
 
     it "should be created from a store with file upload" do
       # Create a Datastore and a feature type under the default workspace (set it up as nil)
-      ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile4'
+      ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_granules'
       ds.delete :recurse => true unless ds.new?
 
       ds.enabled = true
       ds.new?.should == true
       ds.upload_file @shapefile_zip
 
-      ft = RGeoServer::FeatureType.new @catalog, :workspace => @ws, :data_store => ds, :name => 'granules'
-      ft.save
-
       ds.clear #reload DataStore
 
-      lyr = RGeoServer::Layer.new @catalog, :name => 'granules'
+      ft = RGeoServer::FeatureType.new @catalog, :workspace => @ws, :data_store => ds, :name => ds.name
+      ft.save
+
+      lyr = RGeoServer::Layer.new @catalog, :name => ds.name
       lyr.new?.should == false
       lyr.resource.eql? ft
       ds.delete :recurse => true
 
       # Check layer does not exist anymore after deleting the base store
-      lyr = RGeoServer::Layer.new @catalog, :name => 'granules'
+      lyr = RGeoServer::Layer.new @catalog, :name => ds.name
+      lyr.new?.should == true
+    end
+
+    it "should be created automatically from a store with file upload" do
+      # Create a Datastore and a feature type under the default workspace (set it up as nil)
+      ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_granules'
+      ds.delete :recurse => true unless ds.new?
+
+      ds.enabled = true
+      ds.new?.should == true
+      ds.upload_file @shapefile_zip, create_feature: true
+
+      ds.clear #reload DataStore
+
+      lyr = RGeoServer::Layer.new @catalog, :name => ds.name
+      lyr.new?.should == false
+      ds.delete :recurse => true
+
+      # Check layer does not exist anymore after deleting the base store
+      lyr = RGeoServer::Layer.new @catalog, :name => ds.name
       lyr.new?.should == true
     end
 

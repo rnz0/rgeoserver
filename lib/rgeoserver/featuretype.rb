@@ -2,8 +2,8 @@
 module RGeoServer
   # A feature type is a vector based spatial resource or data set that originates from a data store. In some cases, like Shapefile, a feature type has a one-to-one relationship with its data store. In other cases, like PostGIS, the relationship of feature type to data store is many-to-one, with each feature type corresponding to a table in the database.
   class FeatureType < ResourceInfo
-    OBJ_ATTRIBUTES = {:catalog => "catalog", :name => "name", :workspace => "workspace", :data_store => "data_store", :enabled => "enabled", :metadata_links => "metadataLinks", :title => "title", :abstract => "abstract" }
-    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :workspace => nil, :data_store => nil, :name => nil, :enabled => "false", :metadata_links => [], :title => nil, :abtract => nil }
+    OBJ_ATTRIBUTES = {:catalog => "catalog", :name => "name", :workspace => "workspace", :data_store => "data_store", :enabled => "enabled", :metadata_links => "metadataLinks", :title => "title", :abstract => "abstract", :native_bbox_minx => "native_bbox_minx", :native_bbox_miny => "native_bbox_miny", :native_bbox_maxx => "native_bbox_maxx", :native_bbox_maxy => "native_bbox_maxy", :latlon_bbox_minx => "latlon_bbox_minx", :latlon_bbox_miny => "latlon_bbox_miny", :latlon_bbox_maxx => "latlon_bbox_maxx", :latlon_bbox_maxy => "latlon_bbox_maxy"}
+    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :workspace => nil, :data_store => nil, :name => nil, :enabled => "false", :metadata_links => [], :title => nil, :abtract => nil, :native_bbox_minx => nil, :native_bbox_miny => nil, :native_bbox_maxx => nil, :native_bbox_maxy => nil, :latlon_bbox_minx => nil, :latlon_bbox_miny => nil, :latlon_bbox_maxx => nil, :latlon_bbox_maxy => nil }
 
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
@@ -37,12 +37,38 @@ module RGeoServer
         xml.featureType {
           xml.name @name if new?
           xml.enabled @enabled if (enabled_changed? || new?)
-          unless new?
-            xml.title @title
-            xml.abstract @abtract if abstract_changed?
-            xml.store(:class => 'dataStore') {
-              xml.name @data_store.name
+          xml.title @title
+          xml.abstract @abtract if abstract_changed?
+
+          xml.store(:class => 'dataStore') {
+            xml.name @data_store.name
+          }
+
+          xml.nativeBoundingBox {
+            xml.minx native_bbox_minx unless native_bbox_minx.nil?
+            xml.miny native_bbox_miny unless native_bbox_miny.nil?
+            xml.maxx native_bbox_maxx unless native_bbox_maxx.nil?
+            xml.maxy native_bbox_maxy unless native_bbox_maxy.nil?
+          } unless [native_bbox_minx, native_bbox_miny, native_bbox_maxx, native_bbox_maxy].compact.empty?
+
+          xml.latLonBoundingBox {
+            xml.minx latlon_bbox_minx unless latlon_bbox_minx.nil?
+            xml.miny latlon_bbox_miny unless latlon_bbox_miny.nil?
+            xml.maxx latlon_bbox_maxx unless latlon_bbox_maxx.nil?
+            xml.maxy latlon_bbox_maxy unless latlon_bbox_maxy.nil?
+          } unless [latlon_bbox_minx, latlon_bbox_miny, latlon_bbox_maxx, latlon_bbox_maxy].compact.empty?
+
+          xml.attributes {
+            xml.attribute {
+              xml.name 'the_geom'
+              xml.minOccurs 0
+              xml.maxOccurs 1
+              xml.nillable true
+              xml.binding 'com.vividsolutions.jts.geom.Point'
             }
+          }
+
+          unless new?
             xml.metadataLinks {
               @metadata_links.each{ |m|
                 xml.metadataLink {

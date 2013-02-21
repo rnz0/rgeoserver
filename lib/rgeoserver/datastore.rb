@@ -110,6 +110,8 @@ module RGeoServer
       data_type = options.delete(:data_type) || :shapefile
       data_type = data_type.to_sym
 
+      create_feature = options.delete(:create_feature) || false
+
       upload_url_suffix = case data_type
                           when :shapefile then "#{update_route}/file.shp"
                           else
@@ -117,6 +119,29 @@ module RGeoServer
                           end
 
       @catalog.client[upload_url_suffix].put File.read(file_path), :content_type => 'application/zip'
+
+      clear
+
+      if create_feature
+        ft = RGeoServer::FeatureType.new @catalog, :workspace => @workspace, :data_store => self, :name => @name
+        ft.title = ft.name.capitalize
+        ft.enabled = true
+
+        bounds = case data_type
+                 when :shapefile
+                   shpInfo = ShapefileInfo.new file_path
+                   shpInfo.bounds
+                 else
+                   raise DataTypeNotExpected, data_type
+                 end
+
+        ft.native_bbox_minx, ft.native_bbox_miny, ft.native_bbox_maxx, ft.native_bbox_maxy =
+          bounds.to_a
+
+        ft.save
+      end
+
+      self
     end
 
     def profile_xml_to_hash profile_xml
