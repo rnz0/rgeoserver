@@ -23,7 +23,7 @@ module RGeoServer
       end
     end
 
-    OBJ_ATTRIBUTES = {:enabled => "enabled", :catalog => "catalog", :workspace => "workspace", :name => "name", :connection_parameters => "connectionParameters"}
+    OBJ_ATTRIBUTES = {:enabled => "enabled", :catalog => "catalog", :workspace => "workspace", :name => "name", :connection_parameters => "connection_parameters"}
     OBJ_DEFAULT_ATTRIBUTES = {:enabled => 'true', :catalog => nil, :workspace => nil, :name => nil, :connection_parameters => {}}
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
@@ -62,13 +62,13 @@ module RGeoServer
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.dataStore {
           xml.name @name
-          xml.enabled @enabled
+          xml.enabled enabled
           xml.connectionParameters {  # this could be empty
-            @connection_parameters.each_pair { |k,v|
+            connection_parameters.each_pair { |k,v|
               xml.entry(:key => k) {
                 xml.text v
               }
-            } unless @connection_parameters.nil? || @connection_parameters.empty?
+            } unless connection_parameters.nil? || connection_parameters.empty?
           }
         }
       end
@@ -121,6 +121,9 @@ module RGeoServer
       @catalog.client[upload_url_suffix].put File.read(file_path), :content_type => 'application/zip'
 
       clear
+      connection_parameters['url'] = connection_parameters['url'].gsub(/.*data/, '').insert(0, 'file:data') #correct to relative path
+      save
+      clear
 
       if publish
         ft = RGeoServer::FeatureType.new @catalog, :workspace => @workspace, :data_store => self, :name => @name
@@ -156,7 +159,7 @@ module RGeoServer
       h = {
         "name" => doc.at_xpath('//name').text.strip,
         "enabled" => doc.at_xpath('//enabled/text()').to_s,
-        "connectionParameters" => doc.xpath('//connectionParameters/entry').inject({}){ |h, e| h.merge(e['key']=> e.text.to_s) }
+        "connection_parameters" => doc.xpath('//connectionParameters/entry').inject({}){ |h, e| h.merge(e['key']=> e.text.to_s) }
       }
       doc.xpath('//featureTypes/atom:link/@href', "xmlns:atom"=>"http://www.w3.org/2005/Atom" ).each{ |l|
         h["featureTypes"] = begin

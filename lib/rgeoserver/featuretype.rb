@@ -50,8 +50,8 @@ module RGeoServer
         xml.featureType {
           xml.name @name if new?
           xml.enabled @enabled if (enabled_changed? || new?)
-          xml.title @title
-          xml.abstract @abstract if (abstract_changed? || new?)
+          xml.title title
+          xml.abstract abstract
 
           xml.store(:class => 'dataStore') {
             xml.name @data_store.name
@@ -176,13 +176,13 @@ module RGeoServer
     end
 
     def valid_native_bounds?
-      @native_bounds &&
-        ![@native_bounds['minx'], @native_bounds['miny'], @native_bounds['maxx'], @native_bounds['maxy'], @native_bounds['crs']].compact.empty?
+      native_bounds &&
+        ![native_bounds['minx'], native_bounds['miny'], native_bounds['maxx'], native_bounds['maxy'], native_bounds['crs']].compact.empty?
     end
 
     def valid_latlon_bounds?
-      @latlon_bounds &&
-        ![@latlon_bounds['minx'], @latlon_bounds['miny'], @latlon_bounds['maxx'], @latlon_bounds['maxy'], @latlon_bounds['crs']].compact.empty?
+      latlon_bounds &&
+        ![latlon_bounds['minx'], latlon_bounds['miny'], latlon_bounds['maxx'], latlon_bounds['maxy'], latlon_bounds['crs']].compact.empty?
     end
 
     private
