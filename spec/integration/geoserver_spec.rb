@@ -234,7 +234,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
 
       ds.enabled = true
       ds.new?.should == true
-      ds.upload_file @shapefile_zip, create_feature: true
+      ds.upload_file @shapefile_zip, publish: true
 
       ds.clear #reload DataStore
 
@@ -252,6 +252,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
         l.profile.should_not be_empty
       }
     end
+
     it "should issue seed on an existing layer's cache" do
       pending "This certainly passes. We are skipping it since it is a CPU intensive operation"
       lyr = RGeoServer::Layer.new @catalog, :name => 'Arc_Sample'
@@ -290,6 +291,11 @@ describe "Integration test against a GeoServer instance", :integration => true d
       lyr.seed :truncate, options
     end
 
+    it 'should return projection policy' do
+      layer = @catalog.get_layers.first.resource
+      layer.projection_policy.should be_kind_of(Symbol)
+    end
+
   end
 
   context "LayerGroups" do
@@ -323,6 +329,22 @@ describe "Integration test against a GeoServer instance", :integration => true d
       g.bounds['maxx'].should_not == ''
       g.delete
       g.new?.should == true
+    end
+
+    it 'should return layer group bounds' do
+      lg = RGeoServer::LayerGroup.new @catalog, :name => 'tasmania'
+      bounds = lg.bounds
+      bounds['minx'].should > 0
+      bounds['miny'].should < 0
+      bounds['maxx'].should > 0
+      bounds['maxy'].should < 0
+    end
+
+    it 'should recalculate layer group bounds' do
+      lg = RGeoServer::LayerGroup.new @catalog, :name => 'tasmania'
+      bounds = lg.bounds
+      bounds_new = lg.recalculate_bounds
+      bounds.should == bounds_new
     end
 
   end

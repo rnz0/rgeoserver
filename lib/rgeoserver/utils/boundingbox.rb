@@ -4,6 +4,16 @@ module RGeoServer
   class BoundingBox
     attr_accessor :minx, :miny, :maxx, :maxy
 
+    @@epsilon = 0.0001
+
+    def self.epsilon
+      @@epsilon
+    end
+
+    def self.epsilon= value
+      @@epsilon = value
+    end
+
     def initialize
       reset
     end
@@ -27,10 +37,38 @@ module RGeoServer
       @empty = false
     end
 
+    def min
+      [@minx, @miny]
+    end
+
+    def max
+      [@maxx, @maxy]
+    end
+
+    def expand rate = @@epsilon
+      _minx, _miny = [@minx - rate, @miny - rate]
+      _maxx, _maxy = [@maxx + rate, @maxy + rate]
+
+      reset
+
+      add _minx, _miny
+      add _maxx, _maxy
+    end
+
+    def constrict rate = @@epsilon
+      expand -rate
+    end
+
     def to_geometry
       factory = RGeo::Cartesian::Factory.new
-      point_min = factory.point @minx, @miny
-      point_max = factory.point @maxx, @maxy
+
+      point_min, point_max = unless [@minx, @miny] == [@maxx, @maxy]
+        [factory.point(@minx, @miny), factory.point(@maxx, @maxy)]
+      else
+        [factory.point(@minx - @@epsilon, @miny - @@epsilon),
+         factory.point(@maxx + @@epsilon, @maxy + @@epsilon)]
+      end
+
       line_string = factory.line_string [point_min, point_max]
       line_string.envelope
     end

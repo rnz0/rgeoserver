@@ -4,17 +4,17 @@ require 'zip/zip'
 
 module RGeoServer
   class ShapefileInfo
+    class ShapefileInfoGeometryNotExpected < StandardError
+      def initialize geometry_type
+        @geometry_type = geometry_type
+      end
+
+      def message
+        "The geometry type %s was not expected." % geometry_type
+      end
+    end
+
     attr_reader :file_path
-
-    @@epsilon = 0.001
-
-    def self.epsilon
-      @@epsilon
-    end
-
-    def self.epsilon= value
-      @@epsilon = value
-    end
 
     def initialize file_path
       @file_path = file_path
@@ -27,11 +27,15 @@ module RGeoServer
       RGeo::Shapefile::Reader.open(@shp_path) do |shp|
         shp.each do |record|
           geometry = record.geometry
-          points = case geometry.envelope.geometry_type
+          envelope = geometry.envelope
+          envelope_type = envelope.geometry_type
+          points = case envelope_type
                    when RGeo::Feature::Point
-                     [geometry.envelope]
+                     [envelope]
                    when RGeo::Feature::Polygon
-                     geometry.envelope.exterior_ring.points
+                     envelope.exterior_ring.points
+                   else
+                     raise ShapefileInfoGeometryNotExpected, envelope_type
                    end
           points.each { |point| bbox.add point.x, point.y }
         end
@@ -39,12 +43,7 @@ module RGeoServer
 
       resource_destroy
 
-      if [bbox.minx, bbox.miny] == [bbox.maxx, bbox.maxy]
-        bbox.minx -= @@epsilon
-        bbox.miny -= @@epsilon
-        bbox.maxx += @@epsilon
-        bbox.maxy += @@epsilon
-      end
+      bbox.expand if [bbox.minx, bbox.miny] == [bbox.maxx, bbox.maxy]
 
       bbox
     end
@@ -76,6 +75,8 @@ module RGeoServer
             zipfile.extract entry_name, dest_path
           end
         end
+      else
+        @shp_path = @file_path
       end
     end
 

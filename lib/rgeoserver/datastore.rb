@@ -110,7 +110,7 @@ module RGeoServer
       data_type = options.delete(:data_type) || :shapefile
       data_type = data_type.to_sym
 
-      create_feature = options.delete(:create_feature) || false
+      publish = options.delete(:publish) || false
 
       upload_url_suffix = case data_type
                           when :shapefile then "#{update_route}/file.shp"
@@ -122,7 +122,7 @@ module RGeoServer
 
       clear
 
-      if create_feature
+      if publish
         ft = RGeoServer::FeatureType.new @catalog, :workspace => @workspace, :data_store => self, :name => @name
         ft.title = ft.name.capitalize
         ft.enabled = true
@@ -135,10 +135,16 @@ module RGeoServer
                    raise DataTypeNotExpected, data_type
                  end
 
-        ft.native_bbox_minx, ft.native_bbox_miny, ft.native_bbox_maxx, ft.native_bbox_maxy =
+        ft.native_bounds['minx'], ft.native_bounds['miny'], ft.native_bounds['maxx'], ft.native_bounds['maxy'] =
           bounds.to_a
-
+        ft.projection_policy = :force
         ft.save
+
+        layers = catalog.get_layers workspace: @workspace
+        layers.find_all{ |layer| layer.name == ft.name }.each do
+          |layer| layer.enabled = true
+          layer.save
+        end
       end
 
       self

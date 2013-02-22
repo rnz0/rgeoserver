@@ -4,7 +4,7 @@ module RGeoServer
   class LayerGroup < ResourceInfo
 
     OBJ_ATTRIBUTES = {:catalog => 'catalog', :name => 'name', :workspace => 'workspace', :layers => 'layers', :styles => 'styles', :bounds => 'bounds', :metadata => 'metadata' }
-    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :name => nil, :workspace => nil, :layers => [], :styles => [], :bounds => {'minx'=>'', 'miny' =>'', 'maxx'=>'', 'maxy'=>'', 'crs' =>''}, :metadata => {} }
+    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :name => nil, :workspace => nil, :layers => [], :styles => [], :bounds => {'minx'=>nil, 'miny' =>nil, 'maxx'=>nil, 'maxy'=>nil, 'crs' =>nil}, :metadata => {} }
 
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
@@ -53,12 +53,12 @@ module RGeoServer
             }
           } unless styles.nil?
           xml.bounds {
-            xml.minx bounds['minx']
-            xml.maxx bounds['maxx']
-            xml.miny bounds['miny']
-            xml.maxy bounds['maxy']
-            xml.crs bounds['crs']
-          } if @bounds
+            xml.minx bounds['minx'] if bounds['minx']
+            xml.maxx bounds['maxx'] if bounds['miny']
+            xml.miny bounds['miny'] if bounds['maxx']
+            xml.maxy bounds['maxy'] if bounds['maxy']
+            xml.crs bounds['crs'] if bounds['crs']
+          } if valid_bounds?
         }
       end
       return builder.doc.to_xml
@@ -134,6 +134,37 @@ module RGeoServer
       end
     end
 
+    def bounds
+      @bounds = valid_bounds? ? @bounds : profile['bounds']
+    end
+
+    def valid_bounds?
+      @bounds &&
+        ![@bounds['minx'], @bounds['miny'], @bounds['maxx'], @bounds['maxy'], @bounds['crs']].compact.empty?
+    end
+
+    def recalculate_bounds
+      bbox = BoundingBox.new
+
+      layers.each do |layer|
+        case layer.resource
+        when RGeoServer::FeatureType
+          b = layer.resource.latlon_bounds
+          bbox.add b['minx'], b['miny']
+          bbox.add b['maxx'], b['maxy']
+        else
+          raise NotImplementedError, 'The bounds calculation for coverage resource was not implemented.'
+        end
+      end
+
+      @bounds =
+        {'minx' => bbox.min[0], 'miny' => bbox.min[1],
+        'maxx' => bbox.max[0], 'maxy' => bbox.max[1],
+        'crs' => @bounds['crs']}
+
+      bounds
+    end
+
     # Retrieve the resource profile as a hash and cache it
     # @return [Hash]
     def profile
@@ -167,11 +198,11 @@ module RGeoServer
         "layers" => doc.xpath('//layers/layer/name/text()').collect{|l| l.to_s},
         "styles" => doc.xpath('//styles/style/name/text()').collect{|s| s.to_s},
         "bounds" => {
-          "minx" => doc.at_xpath('//bounds/minx/text()').to_s,
-          "maxx" => doc.at_xpath('//bounds/maxx/text()').to_s,
-          "miny" => doc.at_xpath('//bounds/miny/text()').to_s,
-          "maxy" => doc.at_xpath('//bounds/maxy/text()').to_s,
-          "crs" => doc.at_xpath('//bounds/crs/text()')
+          "minx" => doc.at_xpath('//bounds/minx/text()').to_s.to_f,
+          "maxx" => doc.at_xpath('//bounds/maxx/text()').to_s.to_f,
+          "miny" => doc.at_xpath('//bounds/miny/text()').to_s.to_f,
+          "maxy" => doc.at_xpath('//bounds/maxy/text()').to_s.to_f,
+          "crs" => doc.at_xpath('//bounds/crs/text()').to_s
         },
         "metadata" => doc.xpath('//metadata/entry').inject({}){ |h, e| h.merge(e['key']=> e.text.to_s) }
       }.freeze

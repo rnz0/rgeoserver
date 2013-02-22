@@ -92,7 +92,8 @@ module RGeoServer
       doc = Nokogiri::XML(response)
       layer_nodes = doc.xpath(Layer.root_xpath).collect{|l| l.text.to_s }
       layers = list(Layer, layer_nodes, {}, &block)
-      layers = layers.find_all { |layer| layer.workspace.name == options[:workspace] } if options[:workspace]
+      workspace_name = Workspace === options[:workspace] ? options[:workspace].name : options[:workspace]
+      layers = layers.find_all { |layer| layer.workspace.name == workspace_name } if options[:workspace]
       layers
     end
 
