@@ -90,9 +90,9 @@ module RGeoServer
     def get_layers options = {}, &block
       response = self.search :layers => nil
       doc = Nokogiri::XML(response)
+      workspace_name = Workspace === options[:workspace] ? options[:workspace].name : options[:workspace]
       layer_nodes = doc.xpath(Layer.root_xpath).collect{|l| l.text.to_s }
       layers = list(Layer, layer_nodes, {}, &block)
-      workspace_name = Workspace === options[:workspace] ? options[:workspace].name : options[:workspace]
       layers = layers.find_all { |layer| layer.workspace.name == workspace_name } if options[:workspace]
       layers
     end

@@ -12,7 +12,7 @@ module RGeoServer
       :enabled => "false",
       :metadata_links => [],
       :title => nil,
-      :abtract => nil,
+      :abstract => nil,
       :native_bounds => {'minx'=>nil, 'miny' =>nil, 'maxx'=>nil, 'maxy'=>nil, 'crs' =>nil},
       :latlon_bounds => {'minx'=>nil, 'miny' =>nil, 'maxx'=>nil, 'maxy'=>nil, 'crs' =>nil},
       :projection_policy => :force
@@ -51,7 +51,7 @@ module RGeoServer
           xml.name @name if new?
           xml.enabled @enabled if (enabled_changed? || new?)
           xml.title @title
-          xml.abstract @abtract if abstract_changed?
+          xml.abstract @abstract if (abstract_changed? || new?)
 
           xml.store(:class => 'dataStore') {
             xml.name @data_store.name

@@ -125,6 +125,7 @@ module RGeoServer
       if publish
         ft = RGeoServer::FeatureType.new @catalog, :workspace => @workspace, :data_store => self, :name => @name
         ft.title = ft.name.capitalize
+        ft.abstract = ft.name.capitalize
         ft.enabled = true
 
         bounds = case data_type
@@ -141,8 +142,8 @@ module RGeoServer
         ft.save
 
         layers = catalog.get_layers workspace: @workspace
-        layers.find_all{ |layer| layer.name == ft.name }.each do
-          |layer| layer.enabled = true
+        layers.find_all{ |layer| layer.name == ft.name }.each do |layer|
+          layer.enabled = true
           layer.save
         end
       end
