@@ -4,12 +4,13 @@ describe "Integration test against a GeoServer instance", :integration => true d
   CONFIG = RGeoServer::Config
 
   before(:all) do
+    RestClient.log = '/tmp/restclient.log'
     @catalog = RGeoServer.catalog
     @fixtures_dir = File.expand_path File.join(File.dirname(__FILE__), "/../fixtures/")
     @shapefile = File.expand_path File.join(@fixtures_dir, 'datasets/vector/granules.shp')
+    @shapefile_zip = File.expand_path File.join(@fixtures_dir, 'datasets/vector/granules.zip')
     @raster = File.expand_path File.join(@fixtures_dir, 'datasets/raster/test.tif')
   end
-
 
   context "Namespaces" do
     it "should instantiate a namespace resource" do
@@ -135,6 +136,15 @@ describe "Integration test against a GeoServer instance", :integration => true d
   end
 
   context "Layers" do
+    before :each do
+      @ws = RGeoServer::Workspace.new @catalog, :name => 'test_workspace_for_layers'
+      @ws.save
+    end
+
+    after :each do
+      @ws.delete :recurse => true
+    end
+
     it "should instantiate a new layer" do
       lyr = RGeoServer::Layer.new @catalog, :name => 'layer_rgeoserver_test'
       lyr.new?.should == true
@@ -173,13 +183,16 @@ describe "Integration test against a GeoServer instance", :integration => true d
 
     it "should be created from a store" do
       # Create a Datastore and a feature type under the default workspace (set it up as nil)
-      ds = RGeoServer::DataStore.new @catalog, :workspace => nil, :name => 'test_shapefile2'
+      ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile2'
       ds.connection_parameters = {"url" => "file://#{@shapefile}"}
       ds.enabled = true
       ds.new?.should == true
       ds.save
-      ft = RGeoServer::FeatureType.new @catalog, :workspace => nil, :data_store => ds, :name => 'granules'
+
+      ft = RGeoServer::FeatureType.new @catalog, :workspace => @ws, :data_store => ds, :name => 'granules'
       ft.save
+
+      ds.clear
 
       lyr = RGeoServer::Layer.new @catalog, :name => 'granules'
       lyr.new?.should == false
@@ -190,11 +203,56 @@ describe "Integration test against a GeoServer instance", :integration => true d
       lyr.new?.should == true
     end
 
+    it "should be created from a store with file upload" do
+      # Create a Datastore and a feature type under the default workspace (set it up as nil)
+      ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_granules'
+      ds.delete :recurse => true unless ds.new?
+
+      ds.enabled = true
+      ds.new?.should == true
+      ds.upload_file @shapefile_zip
+
+      ds.clear #reload DataStore
+
+      ft = RGeoServer::FeatureType.new @catalog, :workspace => @ws, :data_store => ds, :name => ds.name
+      ft.save
+
+      lyr = RGeoServer::Layer.new @catalog, :name => ds.name
+      lyr.new?.should == false
+      lyr.resource.eql? ft
+      ds.delete :recurse => true
+
+      # Check layer does not exist anymore after deleting the base store
+      lyr = RGeoServer::Layer.new @catalog, :name => ds.name
+      lyr.new?.should == true
+    end
+
+    it "should be created automatically from a store with file upload" do
+      # Create a Datastore and a feature type under the default workspace (set it up as nil)
+      ds = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_granules'
+      ds.delete :recurse => true unless ds.new?
+
+      ds.enabled = true
+      ds.new?.should == true
+      ds.upload_file @shapefile_zip, publish: true
+
+      ds.clear #reload DataStore
+
+      lyr = RGeoServer::Layer.new @catalog, :name => ds.name
+      lyr.new?.should == false
+      ds.delete :recurse => true
+
+      # Check layer does not exist anymore after deleting the base store
+      lyr = RGeoServer::Layer.new @catalog, :name => ds.name
+      lyr.new?.should == true
+    end
+
     it "should list layers" do
       @catalog.get_layers.each { |l|
         l.profile.should_not be_empty
       }
     end
+
     it "should issue seed on an existing layer's cache" do
       pending "This certainly passes. We are skipping it since it is a CPU intensive operation"
       lyr = RGeoServer::Layer.new @catalog, :name => 'Arc_Sample'
@@ -233,6 +291,11 @@ describe "Integration test against a GeoServer instance", :integration => true d
       lyr.seed :truncate, options
     end
 
+    it 'should return projection policy' do
+      layer = @catalog.get_layers.first.resource
+      layer.projection_policy.should be_kind_of(Symbol)
+    end
+
   end
 
   context "LayerGroups" do
@@ -266,6 +329,22 @@ describe "Integration test against a GeoServer instance", :integration => true d
       g.bounds['maxx'].should_not == ''
       g.delete
       g.new?.should == true
+    end
+
+    it 'should return layer group bounds' do
+      lg = RGeoServer::LayerGroup.new @catalog, :name => 'tasmania'
+      bounds = lg.bounds
+      bounds['minx'].should > 0
+      bounds['miny'].should < 0
+      bounds['maxx'].should > 0
+      bounds['maxy'].should < 0
+    end
+
+    it 'should recalculate layer group bounds' do
+      lg = RGeoServer::LayerGroup.new @catalog, :name => 'tasmania'
+      bounds = lg.bounds
+      bounds_new = lg.recalculate_bounds
+      bounds.should == bounds_new
     end
 
   end
@@ -308,12 +387,12 @@ describe "Integration test against a GeoServer instance", :integration => true d
   end
 
   context "Stores" do
-    before :all do
+    before :each do
       @ws = RGeoServer::Workspace.new @catalog, :name => 'test_workspace_for_stores'
       @ws.save
     end
 
-    after :all do
+    after :each do
       @ws.delete :recurse => true
     end
 
@@ -329,6 +408,31 @@ describe "Integration test against a GeoServer instance", :integration => true d
         obj.new?.should == true
         obj.name.should == 'test_shapefile'
         obj.workspace.name.should == @ws.name
+      end
+
+      it "should instantiate a datastore from file" do
+        obj = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile'
+        obj.new?.should == true
+        obj.name.should == 'test_shapefile'
+        obj.workspace.name.should == @ws.name
+        obj.upload_file @shapefile_zip
+      end
+
+      it "tries to instantiate a datastore from file with invalid data type" do
+        obj = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile'
+        obj.new?.should == true
+        obj.name.should == 'test_shapefile'
+        obj.workspace.name.should == @ws.name
+        expect { obj.upload_file @shapefile_zip, :data_type => :xxx }.to raise_error(RGeoServer::DataStore::DataTypeNotExpected)
+      end
+
+      it "tries to update an existing datastore with file" do
+        obj = RGeoServer::DataStore.new @catalog, :workspace => @ws, :name => 'test_shapefile'
+        obj.new?.should == true
+        obj.name.should == 'test_shapefile'
+        obj.workspace.name.should == @ws.name
+        obj.save
+        expect { obj.upload_file @shapefile_zip }.to raise_error(RGeoServer::DataStore::DataStoreAlreadyExists)
       end
 
       it "should not create a datastore if workspace does not exit" do

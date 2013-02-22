@@ -5,32 +5,32 @@ module RGeoServer
 
     OBJ_ATTRIBUTES = {:enabled => 'enabled', :queryable => 'queryable', :path => 'path', :catalog => 'catalog', :name => 'name', :default_style => 'default_style', :alternate_styles => 'alternate_styles', :metadata => 'metadata', :attribution => 'attribution', :layer_type => 'type' }
     OBJ_DEFAULT_ATTRIBUTES = {
-      :enabled => 'true', 
-      :queryable => 'true', 
-      :path => '/', 
-      :catalog => nil, 
-      :name => nil, 
-      :default_style => nil, 
-      :alternate_styles => [], 
+      :enabled => 'true',
+      :queryable => 'true',
+      :path => '/',
+      :catalog => nil,
+      :name => nil,
+      :default_style => nil,
+      :alternate_styles => [],
       :metadata => {
         'GWC.autoCacheStyles' => 'true',
         'GWC.gutter' => '0',
         'GWC.enabled' => 'true',
         'GWC.cacheFormats' => 'image/jpeg,image/png',
         'GWC.gridSets' => 'EPSG:4326,EPSG:900913'
-      }, 
+      },
       :attribution => {
-        'logo_height' => '0', 
-        'logo_width' => '0', 
+        'logo_height' => '0',
+        'logo_width' => '0',
         'title' => ''
-      }, 
-      :layer_type => nil 
+      },
+      :layer_type => nil
     }
 
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
 
-    @@route = "layers" 
+    @@route = "layers"
     @@resource_name = "layer"
 
     def self.resource_name
@@ -46,12 +46,12 @@ module RGeoServer
     end
 
     def route
-      @@route  
+      @@route
     end
 
     # No direct layer creation
-    def create_route 
-      nil 
+    def create_route
+      nil
     end
 
     def update_params name_route = @name
@@ -60,15 +60,15 @@ module RGeoServer
 
     def message
       builder = Nokogiri::XML::Builder.new do |xml|
-        xml.layer { 
-          xml.name @name 
-          xml.path path 
-          xml.type_ layer_type 
-          xml.enabled @enabled 
+        xml.layer {
+          xml.name @name
+          xml.path path
+          xml.type_ layer_type
+          xml.enabled @enabled
           xml.queryable @queryable
           xml.defaultStyle {
             xml.name default_style
-          } 
+          }
           xml.styles {
             alternate_styles.each { |s|
               xml.style {
@@ -77,23 +77,23 @@ module RGeoServer
             }
           } unless alternate_styles.empty?
           xml.resource(:class => resource.class.resource_name){
-            xml.name resource.name 
+            xml.name resource.name
           } unless resource.nil?
           xml.metadata {
             metadata.each_pair { |k,v|
               xml.entry(:key => k) {
                 xml.text v
               }
-            } 
+            }
           }
           xml.attribution {
             xml.title attribution['title'] unless attribution['title'].empty?
             xml.logoWidth attribution['logo_width']
-            xml.logoHeight attribution['logo_height'] 
+            xml.logoHeight attribution['logo_height']
           } if !attribution['logo_width'].nil? && !attribution['logo_height'].nil?
         }
       end
-      return builder.doc.to_xml 
+      return builder.doc.to_xml
     end
 
     # @param [RGeoServer::Catalog] catalog
@@ -108,16 +108,16 @@ module RGeoServer
         @name = options[:name].strip
         #@default_style = options[:default_style] || ''
         #@alternate_styles = options[:alternate_styles] || []
-      end        
+      end
       @route = route
     end
 
     def resource= r
-      if r.is_a?(RGeoServer::Coverage) || r.is_a?(RGeoServer::FeatureType) 
+      if r.is_a?(RGeoServer::Coverage) || r.is_a?(RGeoServer::FeatureType)
         @resource = r
       else
-        raise 'Unknown resource type'  
-      end  
+        raise 'Unknown resource type'
+      end
     end
 
     def resource
@@ -134,7 +134,7 @@ module RGeoServer
           when 'featureType'
             return RGeoServer::FeatureType.new @catalog, :workspace => workspace, :data_store => store, :name => name
           else
-            raise 'Unknown resource type'  
+            raise 'Unknown resource type'
           end
         else
           nil
@@ -160,7 +160,7 @@ module RGeoServer
       workspace, _, store = link.match(/workspaces\/(.*?)\/(.*?)\/(.*?)\/(.*?)\/#{name}.xml$/).to_a[1,3]
 
       h = {
-        "name" => name, 
+        "name" => name,
         "path" => doc.at_xpath('//path/text()').to_s,
         "default_style" => doc.at_xpath('//defaultStyle/name/text()').to_s,
         "alternate_styles" => doc.xpath('//styles/style/name/text()').collect{ |s| s.to_s},
@@ -168,7 +168,7 @@ module RGeoServer
         "type" => doc.at_xpath('//type/text()').to_s,
         "enabled" => doc.at_xpath('//enabled/text()').to_s,
         "queryable" => doc.at_xpath('//queryable/text()').to_s,
-        "attribution" => { 
+        "attribution" => {
           "title" => doc.at_xpath('//attribution/title/text()').to_s,
           "logo_width" => doc.at_xpath('//attribution/logoWidth/text()').to_s,
           "logo_height" => doc.at_xpath('//attribution/logoHeight/text()').to_s
@@ -177,14 +177,14 @@ module RGeoServer
           "type" => doc.at_xpath('//resource/@class').to_s,
           "name" => doc.at_xpath('//resource/name/text()').to_s,
           "store" => store,
-          "workspace" => workspace 
+          "workspace" => workspace
         },
-        "metadata" => doc.xpath('//metadata/entry').inject({}){ |h, e| h.merge(e['key']=> e.text.to_s) } 
+        "metadata" => doc.xpath('//metadata/entry').inject({}){ |h, e| h.merge(e['key']=> e.text.to_s) }
       }.freeze
-      h  
+      h
     end
 
-    def workspace 
+    def workspace
       resource.workspace
     end
 
@@ -203,7 +203,7 @@ module RGeoServer
     #  }
     #  > lyr.seed :issue, options
 
-    # @param[String] operation  
+    # @param[String] operation
     # @option operation[Symbol] :issue seed
     # @option operation[Symbol] :truncate seed
     # @option operation[Symbol] :status of the seeding thread
@@ -224,7 +224,7 @@ module RGeoServer
     # @param[Hash] options for seed message
     def build_seed_request operation, options
       builder = Nokogiri::XML::Builder.new do |xml|
-        xml.seedRequest { 
+        xml.seedRequest {
           xml.name prefixed_name
 
           xml.srs {
@@ -233,9 +233,9 @@ module RGeoServer
 
           xml.bounds {
             xml.coords {
-              options[:bounds][:coords].each { |dbl| 
+              options[:bounds][:coords].each { |dbl|
                 xml.double dbl
-              } 
+              }
             }
           } unless options[:bounds].nil?
 
@@ -246,7 +246,7 @@ module RGeoServer
           }
 
           xml.parameters {
-            options[:parameters].each_pair { |k,v| 
+            options[:parameters].each_pair { |k,v|
               xml.entry {
                 xml.string k.upcase
                 xml.string v
@@ -259,4 +259,4 @@ module RGeoServer
     end
   end
 
-end 
+end

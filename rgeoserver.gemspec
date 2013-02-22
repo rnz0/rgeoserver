@@ -20,6 +20,9 @@ Gem::Specification.new do |s|
   s.add_dependency "activesupport"
   s.add_dependency "activemodel"
   s.add_dependency "confstruct"
+  s.add_dependency "rgeo"
+  s.add_dependency "rgeo-shapefile"
+  s.add_dependency "rubyzip"
 
   s.add_development_dependency("rake")
   s.add_development_dependency("shoulda")
@@ -28,5 +31,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency("yard")
   s.add_development_dependency("equivalent-xml")
   s.add_development_dependency("jettywrapper")
+  s.add_development_dependency("pry")
+  s.add_development_dependency("debugger")
 end
-

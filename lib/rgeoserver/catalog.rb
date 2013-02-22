@@ -70,11 +70,11 @@ module RGeoServer
     # Assign default workspace
     # @param [String] workspace name
     def set_default_workspace workspace
-       raise TypeError, "Workspace name must be a string" unless workspace.instance_of? String
-       dws = Workspace.new self, :name => 'default'
-       dws.name = workspace # This creates a new workspace if name is new
-       dws.save
-       dws
+      raise TypeError, "Workspace name must be a string" unless workspace.instance_of? String
+      dws = Workspace.new self, :name => 'default'
+      dws.name = workspace # This creates a new workspace if name is new
+      dws.save
+      dws
     end
 
     # @param [String] store
@@ -87,11 +87,14 @@ module RGeoServer
 
     # List of available layers
     # @return [Array<RGeoServer::Layer>]
-    def get_layers &block
+    def get_layers options = {}, &block
       response = self.search :layers => nil
       doc = Nokogiri::XML(response)
-      layers = doc.xpath(Layer.root_xpath).collect{|l| l.text.to_s }
-      list Layer, layers, {}, &block
+      workspace_name = Workspace === options[:workspace] ? options[:workspace].name : options[:workspace]
+      layer_nodes = doc.xpath(Layer.root_xpath).collect{|l| l.text.to_s }
+      layers = list(Layer, layer_nodes, {}, &block)
+      layers = layers.find_all { |layer| layer.workspace.name == workspace_name } if options[:workspace]
+      layers
     end
 
     # @param [String] layer name
@@ -107,11 +110,15 @@ module RGeoServer
 
     # List of available layer groups
     # @return [Array<RGeoServer::LayerGroup>]
-    def get_layergroups &block
-      response = self.search :layergroups => nil
+    def get_layergroups options = {}, &block
+      response = unless options[:workspace]
+                   self.search :layergroups => nil
+                 else
+                   self.search :workspaces => options[:workspace], :layergroups => nil
+                 end
       doc = Nokogiri::XML(response)
       layer_groups = doc.xpath(LayerGroup.root_xpath).collect{|l| l.text.to_s }.map(&:strip)
-      list LayerGroup, layer_groups, {}, &block
+      list LayerGroup, layer_groups, {workspace: options[:workspace]}, &block
     end
 
     # @param [String] layer group name
