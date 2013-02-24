@@ -10,7 +10,7 @@ It provides primitive Ruby model abstraction.
 == Documentation
 The GeoServer REST Configuration API Reference can be found here:
 
-http://docs.geoserver.org/stable/en/user/restconfig/rest-config-api.html
+http://docs.geoserver.org/stable/en/user/rest/index.html
 
  
 == Installation 
