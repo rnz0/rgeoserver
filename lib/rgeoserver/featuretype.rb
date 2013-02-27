@@ -9,7 +9,7 @@ module RGeoServer
       :workspace => nil,
       :data_store => nil,
       :name => nil,
-      :enabled => "false",
+      :enabled => false,
       :metadata_links => [],
       :title => nil,
       :abstract => nil,
@@ -49,7 +49,7 @@ module RGeoServer
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.featureType {
           xml.name @name if new?
-          xml.enabled @enabled if (enabled_changed? || new?)
+          xml.enabled enabled.to_s
           xml.title title
           xml.abstract abstract
 
@@ -138,6 +138,7 @@ module RGeoServer
         "abstract" => doc.at_xpath('//abstract/text()').to_s,
         "workspace" => @workspace.name,
         "data_store" => @data_store.name,
+        "enabled" => !!(doc.at_xpath('//enabled/text()').to_s =~ /true/i),
         "nativeName" => doc.at_xpath('//nativeName/text()').to_s,
         "srs" => doc.at_xpath('//srs/text()').to_s,
         "native_bounds" => {

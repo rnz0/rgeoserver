@@ -1,3 +1,4 @@
+require 'zip/zip'
 
 module RGeoServer
   # A data store is a source of spatial data that is vector based. It can be a file in the case of a Shapefile, a database in the case of PostGIS, or a server in the case of a remote Web Feature Service.
@@ -107,10 +108,11 @@ module RGeoServer
 
       options = options.dup
 
+      options[:publish] = true unless options.include? :publish
+
+      publish = options.delete :publish
       data_type = options.delete(:data_type) || :shapefile
       data_type = data_type.to_sym
-
-      publish = options.delete(:publish) || false
 
       upload_url_suffix = case data_type
                           when :shapefile then "#{update_route}/file.shp"
@@ -118,38 +120,38 @@ module RGeoServer
                             raise DataTypeNotExpected, data_type
                           end
 
-      @catalog.client[upload_url_suffix].put File.read(file_path), :content_type => 'application/zip'
-
-      clear
-      connection_parameters['url'] = connection_parameters['url'].gsub(/.*data/, '').insert(0, 'file:data') #correct to relative path
-      save
-      clear
-
-      if publish
-        ft = RGeoServer::FeatureType.new @catalog, :workspace => @workspace, :data_store => self, :name => @name
-        ft.title = ft.name.capitalize
-        ft.abstract = ft.name.capitalize
-        ft.enabled = true
-
-        bounds = case data_type
-                 when :shapefile
-                   shpInfo = ShapefileInfo.new file_path
-                   shpInfo.bounds
-                 else
-                   raise DataTypeNotExpected, data_type
-                 end
-
-        ft.native_bounds['minx'], ft.native_bounds['miny'], ft.native_bounds['maxx'], ft.native_bounds['maxy'] =
-          bounds.to_a
-        ft.projection_policy = :force
-        ft.save
-
-        layers = catalog.get_layers workspace: @workspace
-        layers.find_all{ |layer| layer.name == ft.name }.each do |layer|
-          layer.enabled = true
-          layer.save
+      tmp_zip_path = File.join Dir.tmpdir, "#{@name}.zip"
+      while File.exists? tmp_zip_path
+        tmp_zip_path = File.join Dir.tmpdir, ("#{@name}.%.3d.zip" % (rand*1000))
+      end
+      FileUtils.cp file_path, tmp_zip_path
+      Zip::ZipFile.open(tmp_zip_path) do |zip_file|
+        zip_file.glob('**/**') do |entry|
+          extname = File.extname entry.name
+          extry_name_new = "#{@name}#{extname}"
+          zip_file.rename entry, extry_name_new unless extry_name_new == entry.name
         end
       end
+
+      @catalog.client[upload_url_suffix].put File.read(tmp_zip_path), content_type: 'application/zip'
+
+      FileUtils.rm_rf [tmp_zip_path]
+
+      clear
+
+      ft = featuretypes.first
+
+      unless publish
+        ft.delete recurse: true
+      else
+        shp_info = ShapefileInfo.new file_path
+        ft.native_bounds['minx'], ft.native_bounds['miny'], ft.native_bounds['maxx'], ft.native_bounds['maxy'] =
+          shp_info.bounds.to_a
+        ft.projection_policy = :force
+        ft.save
+      end
+
+      clear
 
       self
     end
