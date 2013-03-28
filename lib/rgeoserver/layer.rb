@@ -185,7 +185,7 @@ module RGeoServer
     end
 
     def workspace
-      resource.workspace
+      resource.workspace if resource
     end
 
     #= GeoWebCache Operations for this layer

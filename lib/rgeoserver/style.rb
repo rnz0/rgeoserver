@@ -3,8 +3,8 @@ module RGeoServer
   # A style describes how a resource (feature type or coverage) should be symbolized or rendered by a Web Map Service. In GeoServer styles are specified with {SLD}[http://docr.geoserver.org/stable/en/user/styling/index.html#styling]
   class Style < ResourceInfo
 
-    OBJ_ATTRIBUTES = {:catalog => 'catalog', :name => 'name', :sld_version => 'sldVersion', :filename => 'filename', :sld_doc => 'sld_doc' }
-    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :name => nil, :sld_version => nil, :filename => '', :sld_doc => nil }
+    OBJ_ATTRIBUTES = {:catalog => 'catalog', :name => 'name', :workspace => 'workspace', :sld_version => 'sldVersion', :filename => 'filename', :sld_doc => 'sld_doc' }
+    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :name => nil, :workspace => nil, :sld_version => nil, :filename => '', :sld_doc => nil }
 
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
@@ -26,14 +26,18 @@ module RGeoServer
     end
 
     def route
-      @@route  
+      if workspace
+        "workspaces/#{workspace.name}/styles"
+      else
+        @@route
+      end
     end
 
     def sld_namespace
       @@sld_namespace
     end
 
- 
+
     def create_options
       {
         :headers => {
@@ -43,8 +47,8 @@ module RGeoServer
         :format => :xml,
         :name => @name
       }
-    end   
-    
+    end
+
     def update_options
       {
         :headers => {
@@ -66,8 +70,14 @@ module RGeoServer
       _run_initialize_callbacks do
         @catalog = catalog
         @name = options[:name].strip
-      end        
+        @workspace = options[:workspace]
+        coerce_workspace
+      end
       @route = route
+    end
+
+    def workspace
+      coerce_workspace
     end
 
     # Obtain all layers that use this style.
@@ -77,23 +87,31 @@ module RGeoServer
       @catalog.get_layers do |l|
         lyrs = [l.profile['default_style']]+l.profile['alternate_styles']
         yield l if lyrs.include? @name
-      end 
+      end
     end
 
     def profile_xml_to_hash profile_xml
       doc = profile_xml_to_ng profile_xml
       h = {
-        'name' => doc.at_xpath('//name').text.strip, 
+        'name' => doc.at_xpath('//name').text.strip,
         'sld_version' => doc.at_xpath('//sldVersion/version/text()').to_s,
         'filename' => doc.at_xpath('//filename/text()').to_s,
         'sld_doc' => begin
           Nokogiri::XML(@catalog.search({:styles => @name}, options={:format => 'sld'})).to_xml
         rescue RestClient::ResourceNotFound
-          nil 
+          nil
         end
-      }.freeze 
-      h 
+      }.freeze
+      h
     end
 
+    private
+    def coerce_workspace
+      @workspace = if @workspace.instance_of? String
+                     @catalog.get_workspace(@workspace)
+                   else
+                     @workspace
+                   end
+    end
   end
-end 
+end

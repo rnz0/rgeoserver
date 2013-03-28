@@ -141,14 +141,14 @@ module RGeoServer
 
       ft = featuretypes.first
 
-      unless publish
-        ft.delete recurse: true
-      else
+      if publish
         shp_info = ShapefileInfo.new file_path
         ft.native_bounds['minx'], ft.native_bounds['miny'], ft.native_bounds['maxx'], ft.native_bounds['maxy'] =
           shp_info.bounds.to_a
         ft.projection_policy = :force
         ft.save
+      else
+        ft.delete recurse: true
       end
 
       clear

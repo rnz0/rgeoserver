@@ -25,8 +25,8 @@ module RGeoServer
 
       bbox = BoundingBox.new
       RGeo::Shapefile::Reader.open(@shp_path) do |shp|
-        bbox.add shp.xmin, shp.ymin
-        bbox.add shp.xmax, shp.ymax
+        bbox.add shp.xmin, shp.ymin if shp.xmin && shp.ymin
+        bbox.add shp.xmax, shp.ymax if shp.xmax && shp.ymax
       end
 
       resource_destroy
