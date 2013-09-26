@@ -1,6 +1,6 @@
 require 'rgeo'
 require 'rgeo/shapefile'
-require 'zip/zip'
+require 'zip'
 
 module RGeoServer
   class ShapefileInfo
@@ -56,7 +56,7 @@ module RGeoServer
 
     def resource_init
       if @file_path =~ /\.zip$/i
-        Zip::ZipFile.open(@file_path) do |zipfile|
+        Zip::File.open(@file_path) do |zipfile|
           zipfile.glob('**/**').each do |entry|
             dest_path = File.join tmp_dir, entry.name
             @shp_path = dest_path if entry.name =~ /\.shp$/i

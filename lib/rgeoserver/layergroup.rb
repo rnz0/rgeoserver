@@ -152,7 +152,7 @@ module RGeoServer
       h = {
         "name" => name,
         "workspace" => doc.xpath('//workspace/name/text()').to_s,
-        "layers" => doc.xpath('//layers/layer/name/text()').collect{|l| l.to_s},
+        "layers" => doc.xpath('//published[@type="layer"]/name/text()').collect{|l| l.to_s},
         "styles" => doc.xpath('//styles/style/name/text()').collect{|s| s.to_s},
         "bounds" => {
           "minx" => doc.at_xpath('//bounds/minx/text()').to_s.to_f,

@@ -1,4 +1,4 @@
-require 'zip/zip'
+require 'zip'
 
 module RGeoServer
   # A data store is a source of spatial data that is vector based. It can be a file in the case of a Shapefile, a database in the case of PostGIS, or a server in the case of a remote Web Feature Service.
@@ -125,7 +125,7 @@ module RGeoServer
         tmp_zip_path = File.join Dir.tmpdir, ("#{@name}.%.3d.zip" % (rand*1000))
       end
       FileUtils.cp file_path, tmp_zip_path
-      Zip::ZipFile.open(tmp_zip_path) do |zip_file|
+      Zip::File.open(tmp_zip_path) do |zip_file|
         zip_file.glob('**/**') do |entry|
           extname = File.extname entry.name
           extry_name_new = "#{@name}#{extname}"

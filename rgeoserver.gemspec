@@ -17,12 +17,12 @@ Gem::Specification.new do |s|
   s.add_dependency "rest-client"
   s.add_dependency "nokogiri"
   s.add_dependency "mime-types"
-  s.add_dependency "activesupport"
-  s.add_dependency "activemodel"
+  s.add_dependency "activesupport", "~> 3.2"
+  s.add_dependency "activemodel", "~> 3.2"
   s.add_dependency "confstruct"
   s.add_dependency "rgeo"
   s.add_dependency "rgeo-shapefile"
-  s.add_dependency "rubyzip"
+  s.add_dependency "rubyzip", "~> 1.0"
 
   s.add_development_dependency("rake")
   s.add_development_dependency("shoulda")
