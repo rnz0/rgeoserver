@@ -101,14 +101,15 @@ describe "Integration test against a GeoServer instance", :integration => true d
     it "should fail trying to delete unsaved (new) workspace" do
       obj = RGeoServer::Workspace.new @catalog, :name => 'test'
       obj.delete(:recurse=>true) if !obj.new?
-      obj.delete.should raise_error
+      expect { obj.delete }.to raise_error
     end
 
     it "should fail trying to delete unexisting workspace names from catalog" do
-      lambda{ ["asdfdg", "test3", "test5", "test6"].each{ |w|
+      expect do
+        ["asdfdg", "test3", "test5", "test6"].each { |w|
           @catalog.purge({:workspaces => w}, {:recurse  => true})
         }
-      }.should raise_error
+      end.to raise_error
     end
 
     context "Datastores of a Workspace" do
@@ -157,7 +158,7 @@ describe "Integration test against a GeoServer instance", :integration => true d
       lyr.alternate_styles = ['raster']
       lyr.enabled = 'true'
       lyr.resource = @catalog.get_coverage 'sf','sfdem', 'sfdem'
-      expect{ lyr.save }.to raise_error
+      expect { lyr.save }.to raise_error
     end
 
     it "should be updated once created" do

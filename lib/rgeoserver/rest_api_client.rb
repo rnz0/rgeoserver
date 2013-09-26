@@ -11,10 +11,11 @@ module RGeoServer
     include ActiveSupport::Benchmarkable
 
     # Instantiates a rest client with passed configuration
-    # @param [Hash] c configuration 
+    # @param [Hash] c configuration
     # return <RestClient::Resource>
-    def rest_client c    
-      RestClient::Resource.new(c[:url], :user => c[:user], :password => c[:password], :headers => c[:headers])
+    def rest_client c
+      #RestClient::Resource.new(c[:url], :user => c[:user], :password => c[:password], :headers => c[:headers])
+      RestClient::Resource.new(c[:url], c)
     end
 
     def client config = {}
@@ -49,25 +50,25 @@ module RGeoServer
       end
     end
 
-    # Do an action on an arbitrary URL path within the catalog 
-    # Default method is GET 
-    # @param [String] sub_url 
-    # @param [String] method 
-    # @param [String] data payload 
-    # @param [Hash] options for request 
+    # Do an action on an arbitrary URL path within the catalog
+    # Default method is GET
+    # @param [String] sub_url
+    # @param [String] method
+    # @param [String] data payload
+    # @param [Hash] options for request
     def do_url sub_url, method = :get, data = nil, options = {}, client = client
       sub_url.slice! client.url
-      fetcher = client[sub_url] 
+      fetcher = client[sub_url]
       fetcher.options.merge(options)
-      begin 
-        return fetcher.get if method == :get  
-        fetcher.send method, data 
-      rescue RestClient::InternalServerError => e 
-        $logger.error e.response 
-        $logger.flush if $logger.respond_to? :flush 
-        raise GeoServerInvalidRequest, "Error fetching URL: #{sub_url}. See $logger for details" 
-      end 
-    end 
+      begin
+        return fetcher.get if method == :get
+        fetcher.send method, data
+      rescue RestClient::InternalServerError => e
+        $logger.error e.response
+        $logger.flush if $logger.respond_to? :flush
+        raise GeoServerInvalidRequest, "Error fetching URL: #{sub_url}. See $logger for details"
+      end
+    end
 
     # Add resource to the catalog
     # @param [String] what
@@ -78,14 +79,14 @@ module RGeoServer
       h = options.delete(:headers) || headers(:xml)
       request = client[url_for(what, options)]
       request.options[:headers] = h
-      begin 
+      begin
         return request.send method, message
       rescue RestClient::InternalServerError => e
         $logger.error e.response
         $logger.flush if $logger.respond_to? :flush
         raise GeoServerInvalidRequest, "Error adding #{what.inspect}. See logger for details"
       end
-      
+
     end
 
     # Modify resource in the catalog
@@ -98,14 +99,14 @@ module RGeoServer
       request = client[url_for(what, options)]
       request.options[:headers] = h
       $logger.debug "Modifying: \n #{message}"
-      begin 
+      begin
         return request.send method, message
       rescue RestClient::InternalServerError => e
         $logger.error e.response
         $logger.flush if $logger.respond_to? :flush
         raise GeoServerInvalidRequest, "Error modifying #{what.inspect}. See $logger for details"
       end
-      
+
     end
 
     # Purge resource from the catalog. Options can include recurse=true or false
@@ -115,7 +116,7 @@ module RGeoServer
       request = client[url_for(what, options)]
       begin
         return request.delete
-      rescue RestClient::InternalServerError => e 
+      rescue RestClient::InternalServerError => e
         $logger.error e.response
         $logger.flush if $logger.respond_to? :flush
         raise GeoServerInvalidRequest, "Error deleting #{what.inspect}. See $logger for details"

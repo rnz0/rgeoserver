@@ -204,9 +204,9 @@ module RGeoServer
 
     # @param [String] workspace
     # @param [String] datastore
-    # @param [String] featuretype_id
+    # @param [String] name
     # @return [RGeoServer::FeatureType]
-    def get_feature_type workspace, datastore, featuretype_id
+    def get_feature_type workspace, datastore, name
       raise NotImplementedError
     end
 

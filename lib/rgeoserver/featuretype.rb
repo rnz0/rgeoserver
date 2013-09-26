@@ -2,20 +2,23 @@
 module RGeoServer
   # A feature type is a vector based spatial resource or data set that originates from a data store. In some cases, like Shapefile, a feature type has a one-to-one relationship with its data store. In other cases, like PostGIS, the relationship of feature type to data store is many-to-one, with each feature type corresponding to a table in the database.
   class FeatureType < ResourceInfo
-    OBJ_ATTRIBUTES = {:catalog => "catalog", :name => "name", :workspace => "workspace", :data_store => "data_store", :enabled => "enabled", :metadata_links => "metadataLinks", :title => "title", :abstract => "abstract", :native_bounds => 'native_bounds', :latlon_bounds => "latlon_bounds", :projection_policy => 'projection_policy'}
+    OBJ_ATTRIBUTES = {:catalog => "catalog", :name => "name", :workspace => "workspace", :data_store => "data_store", :enabled => "enabled", :metadata_links => "metadataLinks", :title => "title", :abstract => "abstract", :native_bounds => 'native_bounds', :latlon_bounds => "latlon_bounds", :projection_policy => 'projection_policy', :srs => 'srs' , :native_crs => 'native_crs'
+    }
     OBJ_DEFAULT_ATTRIBUTES =
       {
       :catalog => nil,
       :workspace => nil,
       :data_store => nil,
       :name => nil,
-      :enabled => "false",
+      :enabled => false,
       :metadata_links => [],
       :title => nil,
       :abstract => nil,
+      :srs => nil,
+      :native_crs => nil,
       :native_bounds => {'minx'=>nil, 'miny' =>nil, 'maxx'=>nil, 'maxy'=>nil, 'crs' =>nil},
       :latlon_bounds => {'minx'=>nil, 'miny' =>nil, 'maxx'=>nil, 'maxy'=>nil, 'crs' =>nil},
-      :projection_policy => :force
+      :projection_policy => :none
     }
 
     define_attribute_methods OBJ_ATTRIBUTES.keys
@@ -49,13 +52,16 @@ module RGeoServer
       builder = Nokogiri::XML::Builder.new do |xml|
         xml.featureType {
           xml.name @name if new?
-          xml.enabled @enabled if (enabled_changed? || new?)
+          xml.enabled enabled.to_s
           xml.title title
           xml.abstract abstract
 
           xml.store(:class => 'dataStore') {
             xml.name @data_store.name
           } if new? || data_store_changed?
+
+          #xml.nativeCRS native_crs if native_crs
+          xml.srs srs if srs
 
           xml.nativeBoundingBox {
             xml.minx native_bounds['minx'] if native_bounds['minx']
@@ -138,8 +144,10 @@ module RGeoServer
         "abstract" => doc.at_xpath('//abstract/text()').to_s,
         "workspace" => @workspace.name,
         "data_store" => @data_store.name,
+        "enabled" => !!(doc.at_xpath('//enabled/text()').to_s =~ /true/i),
         "nativeName" => doc.at_xpath('//nativeName/text()').to_s,
         "srs" => doc.at_xpath('//srs/text()').to_s,
+        "native_crs" => doc.at_xpath('//nativeCRS/text()').to_s,
         "native_bounds" => {
           'minx' => doc.at_xpath('//nativeBoundingBox/minx/text()').to_s.to_f,
           'miny' => doc.at_xpath('//nativeBoundingBox/miny/text()').to_s.to_f,
@@ -190,7 +198,7 @@ module RGeoServer
       case value.upcase
       when 'FORCE_DECLARED' then :force
       when 'REPROJECT_TO_DECLARED' then :reproject
-      when 'NONE' then :keep
+      when 'NONE' then :none
       else
         raise ArgumentError, "There is not correspondent to '%s'" % value
       end
@@ -200,7 +208,7 @@ module RGeoServer
       case value
       when :force then 'FORCE_DECLARED'
       when :reproject then 'REPROJECT_TO_DECLARED'
-      when :keep then 'NONE'
+      when :none then 'NONE'
       else
         raise ArgumentError, "There is not correspondent to '%s'" % value
       end

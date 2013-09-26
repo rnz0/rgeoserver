@@ -4,7 +4,7 @@ module RGeoServer
   class LayerGroup < ResourceInfo
 
     OBJ_ATTRIBUTES = {:catalog => 'catalog', :name => 'name', :workspace => 'workspace', :layers => 'layers', :styles => 'styles', :bounds => 'bounds', :metadata => 'metadata' }
-    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :name => nil, :workspace => nil, :layers => [], :styles => [], :bounds => {'minx'=>nil, 'miny' =>nil, 'maxx'=>nil, 'maxy'=>nil, 'crs' =>nil}, :metadata => {} }
+    OBJ_DEFAULT_ATTRIBUTES = {:catalog => nil, :name => nil, :workspace => nil, :layers => nil, :styles => [], :bounds => {'minx'=>nil, 'miny' =>nil, 'maxx'=>nil, 'maxy'=>nil, 'crs' =>nil}, :metadata => {} }
 
     define_attribute_methods OBJ_ATTRIBUTES.keys
     update_attribute_accessors OBJ_ATTRIBUTES
@@ -28,7 +28,11 @@ module RGeoServer
     end
 
     def route
-      @@route
+      if @workspace
+        "workspaces/#{@workspace.name}/#{@@route}"
+      else
+        @@route
+      end
     end
 
     def message
@@ -46,16 +50,16 @@ module RGeoServer
             }
           } unless layers.nil?
           xml.styles {
-            styles.each { |s|
+            (0...layers.count).each { |l_idx|
               xml.style {
-                xml.name s.name
+                xml.name (styles && styles[l_idx] || nil) && (styles[l_idx].name)
               }
-            }
-          } unless styles.nil?
+            } unless layers.nil?
+          }
           xml.bounds {
             xml.minx bounds['minx'] if bounds['minx']
-            xml.maxx bounds['maxx'] if bounds['miny']
-            xml.miny bounds['miny'] if bounds['maxx']
+            xml.miny bounds['miny'] if bounds['miny']
+            xml.maxx bounds['maxx'] if bounds['maxx']
             xml.maxy bounds['maxy'] if bounds['maxy']
             xml.crs bounds['crs'] if bounds['crs']
           } if valid_bounds?
@@ -72,7 +76,12 @@ module RGeoServer
       _run_initialize_callbacks do
         @catalog = catalog
         @name = options[:name].strip
-        @workspace = options[:workspace]
+        workspace = options[:workspace]
+        if workspace.instance_of? String
+          @workspace = @catalog.get_workspace(workspace)
+        elsif workspace.instance_of? Workspace
+          @workspace = workspace
+        end
       end
       @route = route
     end
@@ -89,14 +98,14 @@ module RGeoServer
 
     def styles
       @styles ||= begin
-        unless profile['styles'].empty?
-          return profile['styles'].each{ |s| RGeoServer::Style.new @catalog, :name => s.name }
-        else
-          nil
-        end
-      rescue Exception => e
-        nil
-      end
+                    unless profile['styles'].empty?
+                      return profile['styles'].each{ |s| RGeoServer::Style.new @catalog, :name => s.name }
+                    else
+                      nil
+                    end
+                  rescue Exception => e
+                    nil
+                  end
     end
 
     # @param [Array<RGeoServer::Layer>] ll list of layers
@@ -110,19 +119,17 @@ module RGeoServer
     end
 
     def layers
-      @layers =
-        unless new?
+      @layers ||=
+        unless @layers
           begin
             unless profile['layers'].empty?
-              return profile['layers'].map{ |s| RGeoServer::Layer.new @catalog, :name => s }
+              profile['layers'].map{ |s| RGeoServer::Layer.new @catalog, :name => s }
             else
-              nil
+              []
             end
           rescue Exception => e
-            nil
+            []
           end
-        else
-          @layers || []
         end
     end
 
@@ -134,58 +141,8 @@ module RGeoServer
       end
     end
 
-    def bounds
-      @bounds = valid_bounds? ? @bounds : profile['bounds']
-    end
-
     def valid_bounds?
-      @bounds &&
-        ![@bounds['minx'], @bounds['miny'], @bounds['maxx'], @bounds['maxy'], @bounds['crs']].compact.empty?
-    end
-
-    def recalculate_bounds
-      bbox = BoundingBox.new
-
-      layers.each do |layer|
-        case layer.resource
-        when RGeoServer::FeatureType
-          b = layer.resource.latlon_bounds
-          bbox.add b['minx'], b['miny']
-          bbox.add b['maxx'], b['maxy']
-        else
-          raise NotImplementedError, 'The bounds calculation for coverage resource was not implemented.'
-        end
-      end
-
-      @bounds =
-        {'minx' => bbox.min[0], 'miny' => bbox.min[1],
-        'maxx' => bbox.max[0], 'maxy' => bbox.max[1],
-        'crs' => @bounds['crs']}
-
-      bounds
-    end
-
-    # Retrieve the resource profile as a hash and cache it
-    # @return [Hash]
-    def profile
-      if @profile && !@profile.empty?
-        return @profile
-      end
-
-      @profile =
-        begin
-          h = unless @workspace
-                profile_xml_to_hash(@catalog.search @route => @name )
-              else
-                profile_xml_to_hash(@catalog.search workspaces: @workspace, @route => @name )
-              end
-          @new = false
-          h
-        rescue RestClient::ResourceNotFound
-          # The resource is new
-          @new = true
-          {}
-        end.freeze
+      bounds && !([bounds['minx'], bounds['miny'], bounds['maxx'], bounds['maxy'], bounds['crs']].compact.empty?)
     end
 
     def profile_xml_to_hash profile_xml
@@ -195,7 +152,7 @@ module RGeoServer
       h = {
         "name" => name,
         "workspace" => doc.xpath('//workspace/name/text()').to_s,
-        "layers" => doc.xpath('//layers/layer/name/text()').collect{|l| l.to_s},
+        "layers" => doc.xpath('//published[@type="layer"]/name/text()').collect{|l| l.to_s},
         "styles" => doc.xpath('//styles/style/name/text()').collect{|s| s.to_s},
         "bounds" => {
           "minx" => doc.at_xpath('//bounds/minx/text()').to_s.to_f,

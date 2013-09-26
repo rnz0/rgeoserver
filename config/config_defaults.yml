@@ -1,10 +1,9 @@
 geoserver:
-  url: "http://localhost:8080/geoserver/rest"
-  geowebcache_url: "http://localhost:8080/geoserver/gwc/rest"
+  qurl: "http://localhost:9080/geoserver/rest"
+  geowebcache_url: "http://localhost:9080/geoserver/gwc/rest"
   user: admin
   password: geoserver
 ssl:
   cert_file:
   key_file:
   key_pass: ""
-

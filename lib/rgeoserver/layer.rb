@@ -64,8 +64,8 @@ module RGeoServer
           xml.name @name
           xml.path path
           xml.type_ layer_type
-          xml.enabled @enabled
-          xml.queryable @queryable
+          xml.enabled enabled
+          xml.queryable queryable
           xml.defaultStyle {
             xml.name default_style
           }
@@ -185,7 +185,7 @@ module RGeoServer
     end
 
     def workspace
-      resource.workspace
+      resource.workspace if resource
     end
 
     #= GeoWebCache Operations for this layer
