@@ -56,7 +56,7 @@ module RGeoServer
     # @param [String] method
     # @param [String] data payload
     # @param [Hash] options for request
-    def do_url sub_url, method = :get, data = nil, options = {}, client = client
+    def do_url sub_url, method = :get, data = nil, options = {}, client = self.client
       sub_url.slice! client.url
       fetcher = client[sub_url]
       fetcher.options.merge(options)

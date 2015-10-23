@@ -20,9 +20,9 @@ Gem::Specification.new do |s|
   s.add_dependency "activesupport", "~> 3.2"
   s.add_dependency "activemodel", "~> 3.2"
   s.add_dependency "confstruct"
-  s.add_dependency "rgeo"
-  s.add_dependency "rgeo-shapefile"
-  s.add_dependency "rubyzip", "~> 1.0"
+  s.add_dependency "rgeo", "~> 0.3.2"
+  s.add_dependency "rgeo-shapefile", "~> 0.2.0"
+  s.add_dependency "rubyzip", "~> 1.1.7"
 
   s.add_development_dependency("rake")
   s.add_development_dependency("shoulda")
